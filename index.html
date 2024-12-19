@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Search your Fav Movies</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Style+Script&display=swap');
+  
+    * {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+  
+    .style-script-regular {
+      font-family: "Style Script", cursive;
+      font-weight: 400;
+      font-style: normal;
+    }
+  
+    body {
+      font-family: Arial, sans-serif;
+      background-image: url(./bg.jpg);
+      color: white;
+    }
+  
+    header {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      padding: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(10px);
+      z-index: 10;
+    }
+  
+    .logo a {
+      text-decoration: none;
+      margin-left: 20px;
+      color: rgb(0, 125, 243);
+      font-family: "Style Script";
+      font-size: 3rem;
+      font-weight: bold;
+    }
+  
+    .search-container {
+      position: relative;
+      flex-grow: 1;
+      max-width: 400px;
+    }
+  
+    .search-box {
+      width: 100%;
+      padding: 10px 15px;
+      font-size: 1rem;
+      border-radius: 20px;
+      border: none;
+      outline: none;
+      color: white;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+    }
+  
+    .suggestions {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: rgba(0, 0, 0, 0.9);
+      border-radius: 10px;
+      max-height: 200px;
+      overflow-y: hidden;
+      z-index: 100;
+      backdrop-filter: blur(10px);
+    }
+  
+    .suggestion-item {
+      padding: 10px;
+      color: white;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+  
+    .suggestion-item:hover {
+      background: rgba(255, 0, 0, 0.8);
+    }
+  
+    main {
+      margin-top: 90px;
+      padding: 20px;
+    }
+  
+    .category-section {
+      margin-bottom: 10px;
+      position: relative;
+    }
+  
+    .category-title {
+      z-index: 1;
+      font-size: 2rem;
+      margin: 20px;
+    }
+  
+    .movie-catalog {
+      z-index: 1;
+      display: flex;
+      overflow-x: auto;
+      position: relative;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+    }
+  
+    .movie-catalog .movie-card {
+      flex-shrink: 0;
+      width: 100%;
+      max-width: 200px;
+      margin: 10px;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border-radius: 15px;
+      overflow: hidden;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      scroll-snap-align: start;
+    }
+  
+    .movie-catalog .movie-card:hover {
+      transform: scale(1.05);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+      cursor: pointer;
+    }
+  
+    .movie-catalog img {
+      width: 100%;
+      height: auto;
+      object-fit: cover;
+    }
+  
+    .movie-catalog .details {
+      padding: 10px;
+    }
+  
+    .movie-catalog .title {
+      font-size: 1rem;
+      font-weight: bold;
+    }
+  
+    .movie-catalog .year {
+      color: #ff0000;
+    }
+  
+    .scroll-arrow {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 40px;
+      height: 40px;
+      background: rgba(0, 0, 0, 0.5);
+      border: none;
+      border-radius: 50%;
+      color: white;
+      font-size: 1.5rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 5;
+    }
+  
+    .scroll-arrow.left {
+      left: 0;
+    }
+  
+    .scroll-arrow.right {
+      right: 0;
+    }
+  
+    .fade {
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      width: 200px;
+      pointer-events: none;
+    }
+  
+    .fade.left {
+      z-index: -1;
+      left: 0;
+      background: linear-gradient(to right, rgba(0, 0, 0, 0.099), rgba(0, 0, 0, 0.001));
+    }
+  
+    .fade.right {
+      right: 0;
+      background: linear-gradient(to left, rgba(0, 0, 0, 0.147), rgba(0, 0, 0, 0));
+    }
+  
+    @media (max-width: 768px) {
+      .logo a {
+        font-size: 2rem;
+      }
+  
+      .search-container {
+        max-width: 300px;
+      }
+  
+      .category-title {
+        font-size: 1.5rem;
+      }
+  
+      .movie-catalog .movie-card {
+        max-width: 150px;
+        margin: 5px;
+      }
+    }
+  
+    @media (max-width: 480px) {
+      header {
+        flex-direction: column;
+        padding: 10px;
+      }
+  
+      .logo {
+        margin-bottom: 10px;
+      }
+  
+      .search-container {
+        max-width: 100%;
+      }
+  
+      .category-title {
+        font-size: 1.2rem;
+      }
+  
+      .movie-catalog {
+        display: flex;
+        overflow-x: auto;
+        flex-wrap: nowrap;
+        -webkit-overflow-scrolling: touch;
+      }
+  
+      .movie-catalog .movie-card {
+        width: 100%;
+        max-width: 200px;
+        margin: 5px;
+      }
+    }
+  </style>
+  
+  
+</head>
+<body>
+  <header>
+    <div class="logo"><a href="index.html">watch.this</a></div>
+    <div class="search-container">
+      <input 
+        type="text" 
+        class="search-box" 
+        id="searchBox" 
+        placeholder="Search movies..." 
+        oninput="fetchSuggestions(event)" 
+        onkeypress="performSearch(event)"
+      />
+      <div class="suggestions" id="suggestions"></div>
+    </div>
+  </header>
+
+  <main id="mainContent">
+    <!-- Dynamic categories and movies will be loaded here -->
+  </main>
+
+  <script>
+    const apiKey = "75a7e89329586e64789c4a51059f24ba";
+    const baseUrl = "https://api.themoviedb.org/3";
+    const imageBaseUrl = "https://image.tmdb.org/t/p/w500";
+    const mainContent = document.getElementById("mainContent");
+    const searchBox = document.getElementById("searchBox");
+    const suggestionsBox = document.getElementById("suggestions");
+
+    // Fetch and display genres
+    async function fetchGenres() {
+      const response = await fetch(`${baseUrl}/genre/movie/list?api_key=${apiKey}`);
+      const data = await response.json();
+      return data.genres; // Returns an array of genres with id and name
+    }
+
+    // Fetch movies by genre
+    async function fetchMoviesByGenre(genreId, page = 1) {
+      const response = await fetch(`${baseUrl}/discover/movie?api_key=${apiKey}&with_genres=${genreId}&page=${page}`);
+      const data = await response.json();
+      return data.results; // Returns an array of movies
+    }
+
+    // Create category section
+    function createCategorySection(genreName) {
+      const section = document.createElement("section");
+      section.classList.add("category-section");
+
+      const title = document.createElement("h2");
+      title.classList.add("category-title");
+      title.textContent = genreName;
+
+      const catalogContainer = document.createElement("div");
+      catalogContainer.classList.add("movie-catalog");
+
+      const leftArrow = document.createElement("button");
+      leftArrow.classList.add("scroll-arrow", "left");
+      leftArrow.innerHTML = "&larr;";
+      leftArrow.onclick = () => scrollCatalog(catalogContainer, -200);
+
+      const rightArrow = document.createElement("button");
+      rightArrow.classList.add("scroll-arrow", "right");
+      rightArrow.innerHTML = "&rarr;";
+      rightArrow.onclick = () => scrollCatalog(catalogContainer, 200);
+
+      const fadeLeft = document.createElement("div");
+      fadeLeft.classList.add("fade", "left");
+
+      const fadeRight = document.createElement("div");
+      fadeRight.classList.add("fade", "right");
+
+      section.appendChild(title);
+      section.appendChild(catalogContainer);
+      section.appendChild(leftArrow);
+      section.appendChild(rightArrow);
+      section.appendChild(fadeLeft);
+      section.appendChild(fadeRight);
+
+      mainContent.appendChild(section);
+      return catalogContainer;
+    }
+
+    // Scroll the catalog horizontally
+    function scrollCatalog(catalog, distance) {
+      catalog.scrollBy({ left: distance, behavior: "smooth" });
+    }
+
+    // Load movies into category
+    async function loadMovies(catalog, genreId) {
+      const movies = await fetchMoviesByGenre(genreId);
+      movies.forEach(movie => {
+        const movieCard = document.createElement("div");
+        movieCard.classList.add("movie-card");
+        movieCard.innerHTML = `
+          <img src="${imageBaseUrl}${movie.poster_path}" alt="${movie.title}" />
+          <div class="details">
+            <div class="title">${movie.title}</div>
+            <div class="year">${new Date(movie.release_date).getFullYear()}</div>
+          </div>
+        `;
+        movieCard.onclick = () => {
+          window.location.href = `movie.html?id=${movie.id}`;
+        };
+
+        catalog.appendChild(movieCard);
+      });
+    }
+
+    // Load all genres and their movies
+    async function loadGenresAndMovies() {
+      const genres = await fetchGenres();
+      for (const genre of genres) {
+        const catalog = createCategorySection(genre.name);
+        await loadMovies(catalog, genre.id);
+      }
+    }
+
+    // Fetch suggestions for search box
+    async function fetchSuggestions(event) {
+      const query = event.target.value.trim();
+      if (query.length < 3) {
+        suggestionsBox.innerHTML = "";
+        return;
+      }
+
+      const response = await fetch(`${baseUrl}/search/movie?api_key=${apiKey}&query=${encodeURIComponent(query)}`);
+      const data = await response.json();
+      suggestionsBox.innerHTML = data.results
+        .map(movie => `
+          <div class="suggestion-item" onclick="redirectToSearchPage('${query}')">
+            ${movie.title} (${new Date(movie.release_date).getFullYear()})
+          </div>
+        `)
+        .join("");
+    }
+
+    // Redirect to search page
+    function redirectToSearchPage(query) {
+      window.location.href = `search.html?query=${encodeURIComponent(query)}`;
+    }
+
+    // Perform search on Enter key press
+    function performSearch(event) {
+      if (event.key === "Enter") {
+        const query = searchBox.value.trim();
+        if (query.length >= 3) {
+          window.open(`search.html?query=${encodeURIComponent(query)}`, '_blank');
+        }
+      }
+    }
+
+    // Load genres and movies on page load
+    loadGenresAndMovies();
+  </script>
+</body>
+</html>

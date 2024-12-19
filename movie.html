@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Movie Details</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+        @import url('https://fonts.googleapis.com/css2?family=Style+Script&display=swap');
+
+    * {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background-image: url(./bg.jpg);
+      color: white;
+      padding: 0;
+      background-size: cover;
+      background-attachment: fixed;
+    }
+
+    header {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      padding: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(10px);
+      z-index: 10;
+    }
+
+    .logo a {
+      text-decoration: none;
+      margin-left: 20px;
+      color:rgb(0, 125, 243);
+      font-family: "Style Script";
+      font-size: 3rem;
+      font-weight: bold;
+  
+    }
+
+    .search-container {
+      position: relative;
+    }
+
+    .search-box {
+      width: 400px;
+      padding: 10px 15px;
+      font-size: 1rem;
+      border-radius: 20px;
+      border: none;
+      outline: none;
+      color: white;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+    }
+
+    .movie-detail {
+      margin-top: 100px;
+      padding: 40px;
+      display: flex;
+      gap: 40px;
+      flex-direction: column;
+    }
+
+    .movie-header {
+      display: flex;
+      justify-content: flex-start;
+      gap: 40px;
+    }
+    /* <!-- CREATED BY ARIHANT SINGH,ANDLIV SHUKLA,ANIKESH SONI, ABDULLAH SIDDIQUI --> */
+
+    .movie-header img {
+      width: 350px;
+      height: auto;
+      object-fit: cover;
+      border-radius: 20px;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.7);
+    }
+
+    .movie-info {
+      flex: 1;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    }
+
+    .movie-info .title {
+      font-size: 2.5rem;
+      font-weight: bold;
+      margin-top: 20px;
+    }
+
+    .movie-info .year {
+      margin-top: 20px;
+      font-size: 1.5rem;
+      color: #ff0000;
+    }
+
+    .rating {
+      margin-top: 20px;
+      font-size: 1.5rem;
+    }
+
+    .rating span {
+      margin-top: 20px;
+      color: #ffcc00;
+    }
+
+    .overview {
+      margin-top: 20px;
+      font-size: 1.2rem;
+      margin-top: 20px;
+      line-height: 1.6;
+      text-align: justify;
+    }
+
+    .screenshots {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      margin-top: 40px;
+      flex-wrap: wrap;
+    }
+
+    .screenshot {
+      width: 250px;
+      border-radius: 15px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+      cursor: pointer;
+      transition: transform 0.3s ease;
+    }
+
+    .screenshot:hover {
+      transform: scale(1.05);
+    }
+
+    .additional-info {
+      display: flex;
+      margin-top: 40px;
+      text-align: center;
+    }
+
+    .additional-info a {
+      color: #ffffff;
+      text-decoration: none;
+      font-size: 1.2rem;
+      margin-right: 20px;
+      transition: color 0.3s;
+    }
+
+    .additional-info a:hover {
+      color: #000000;
+    }
+
+    .additional-info .play-trailer {
+      display: inline-block;
+      background-color: #000000;
+      padding: 10px 20px;
+      font-size: 1.5rem;
+      color: white;
+      border-radius: 10px;
+      text-decoration: none;
+      transition: background-color 0.3s ease;
+    }
+
+    .additional-info .play-trailer:hover {
+      background-color: #ffffff;
+    }
+
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      display: none;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-content {
+      position: relative;
+      background: rgba(255, 255, 255, 0.666);
+      padding: 5px;
+      border-radius: 25px;
+      max-width: 90%;
+      max-height: 90%;
+    }
+
+    .modal-content img {
+      width: 100%;
+      height: auto;
+      border-radius: 20px;
+    }
+
+    .search-icon{
+      display: none;
+    }
+    
+    .modal .close {
+      position: absolute;
+      top: 0px;
+      right: 0px;
+      background:rgb(255, 255, 255);
+      padding-inline: 12px;
+      padding-bottom: 7px;
+      font-weight: bolder;
+      color: rgb(0, 157, 255);
+      border: none;
+      border-radius: 100%;
+      text-align: center;
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo"><a href="index.html">watch.this</a></div>
+    <div class="search-container">
+      <input type="text" 
+        class="search-box" 
+        id="searchBox" 
+        placeholder="Search movies..." 
+        oninput="fetchSuggestions(event)" 
+        onkeypress="handleEnterKey(event)"
+      />
+      <button class="search-icon" onclick="performSearch()">🔍</button>
+      <div class="suggestions" id="suggestions"></div>
+    </div>
+  </header>
+
+  <main>
+    <div id="movieDetail" class="movie-detail"></div>
+  </main>
+
+  <div id="screenshotModal" class="modal">
+    <div class="modal-content">
+      <button class="close" onclick="closeModal()">x</button>
+      <img id="expandedScreenshot" src="" alt="Screenshot">
+    </div>
+  </div>
+
+  <script>
+    const apiKey = "75a7e89329586e64789c4a51059f24ba";
+    const baseUrl = "https://api.themoviedb.org/3";
+    const imageBaseUrl = "https://image.tmdb.org/t/p/w500";
+    const movieDetailContainer = document.getElementById("movieDetail");
+
+    // Extract movie ID from URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const movieId = urlParams.get("id");
+
+    // Fetch and display movie details
+    async function fetchMovieDetails(movieId) {
+      const response = await fetch(`${baseUrl}/movie/${movieId}?api_key=${apiKey}`);
+      const movie = await response.json();
+
+      const moviePoster = movie.poster_path ? `${imageBaseUrl}${movie.poster_path}` : 'https://via.placeholder.com/350x500';
+      const movieReleaseYear = new Date(movie.release_date).getFullYear();
+      const rating = movie.vote_average;
+      const overview = movie.overview;
+      const screenshots = await fetchMovieScreenshots(movieId);
+      const trailer = await fetchMovieTrailer(movieId);
+
+      const mediaType = movie.media_type || 'Movie';  // Default to 'Movie' if not available
+
+      movieDetailContainer.innerHTML = `
+        <div class="movie-header">
+          <img src="${moviePoster}" alt="${movie.title}" />
+          <div class="movie-info">
+            <div class="title">${movie.title}</div>
+            <div class="year">${movieReleaseYear}</div>
+            <div class="media-type">${mediaType === 'tv' ? 'TV Show' : 'Movie'}</div>
+            <div class="rating">Rating: <span>${rating}</span>/10</div>
+            <div class="overview">${overview || 'No overview available.'}</div>
+            <div class="additional-info">
+              <a href="${trailer ? trailer : '#'}" target="_blank" class="play-trailer" ${trailer ? '' : 'style="pointer-events: none;"'}>
+                Play Trailer
+              </a>
+            </div>
+          </div>
+        </div>
+      `;
+
+      // Display screenshots
+      const screenshotImages = screenshots.slice(0, 10);
+      const screenshotsContainer = document.createElement("div");
+      screenshotsContainer.classList.add("screenshots");
+
+      screenshotImages.forEach(screenshot => {
+        const img = document.createElement("img");
+        img.classList.add("screenshot");
+        img.src = `${imageBaseUrl}${screenshot.file_path}`;
+        img.alt="Screenshot";
+        img.onclick = () => openModal(img.src);
+        screenshotsContainer.appendChild(img);
+      });
+
+      movieDetailContainer.appendChild(screenshotsContainer);
+    }
+
+    // Fetch movie screenshots
+    async function fetchMovieScreenshots(movieId) {
+      const response = await fetch(`${baseUrl}/movie/${movieId}/images?api_key=${apiKey}`);
+      const data = await response.json();
+      return data.backdrops || [];
+    }
+
+    // Fetch movie trailer
+    async function fetchMovieTrailer(movieId) {
+      const response = await fetch(`${baseUrl}/movie/${movieId}/videos?api_key=${apiKey}`);
+      const data = await response.json();
+      const trailer = data.results.find(video => video.type === 'Trailer');
+      return trailer ? `https://www.youtube.com/watch?v=${trailer.key}` : null;
+    }
+
+    // Open modal for screenshots
+    function openModal(src) {
+      const modal = document.getElementById("screenshotModal");
+      const expandedScreenshot = document.getElementById("expandedScreenshot");
+      expandedScreenshot.src = src;
+      modal.style.display = "flex";
+
+      
+    }
+
+    // Close modal
+    function closeModal() {
+      document.getElementById("screenshotModal").style.display = "none";
+    }
+
+    // Perform search when pressing Enter or clicking the search icon
+    function handleEnterKey(event) {
+      if (event.key === "Enter") {
+        performSearch();
+      }
+    }
+
+    function performSearch() {
+      const query = document.getElementById("searchBox").value.trim();
+      if (query) {
+        window.location.href = `search.html?query=${encodeURIComponent(query)}`;
+      }
+    }
+
+    // Load movie details
+    fetchMovieDetails(movieId);
+  </script>
+</body>
+</html>
