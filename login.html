@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Style+Script&display=swap');
+
+    * {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-image: url(./bg.jpg);
+      background-size: cover;
+      background-position: center;
+      color: white;
+    }
+
+    .header-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+
+    .logo {
+      font-family: 'Style Script', cursive;
+      font-size: 3rem;
+      color: #007df3;
+    }
+
+    .divider {
+      width: 2px;
+      height: 50px;
+      background-color: rgba(255, 255, 255, 0.7);
+      margin: 0 20px;
+    }
+
+    .form-container {
+      width: 100%;
+      max-width: 400px;
+      padding: 20px;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      border-radius: 10px;
+      text-align: center;
+    }
+
+    .form-group {
+      position: relative;
+      margin-bottom: 1.5rem;
+    }
+
+    .form-control {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.1);
+      border: none;
+      border-radius: 5px;
+      color: white;
+      padding: .5rem 1rem 0.5rem;
+    }
+
+    .form-control:focus {
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+    }
+
+    .form-label {
+      position: absolute;
+      top: 7px;
+      left: 15px;
+      pointer-events: none;
+      transition: all 0.3s ease-in-out;
+      opacity: 0.6;
+    }
+
+    .form-control:focus + .form-label,
+    .form-control:not(:placeholder-shown) + .form-label {
+      transform: translateY(-30px);
+      font-size: 0.75rem;
+      opacity: 1;
+    }
+
+    .btn-primary {
+      background-color: #007df3;
+      border: none;
+    }
+
+    h2 {
+      font-family: 'Style Script', cursive;
+      font-size: 2.5rem;
+      color: #ffffff;
+      text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
+    }
+  </style>
+</head>
+<body>
+  <div class="form-container">
+    <div class="header-container">
+      <div class="logo">watch.this</div>
+      <div class="divider"></div>
+      <h2 class="text-center">Login</h2>
+    </div>
+    <form id="loginForm">
+      <div class="form-group">
+        <input type="text" class="form-control" id="username" placeholder=" " required>
+        <label for="username" class="form-label">Username</label>
+      </div>
+      <div class="form-group">
+        <input type="password" class="form-control" id="password" placeholder=" " required>
+        <label for="password" class="form-label">Password</label>
+      </div>
+      <button type="submit" class="btn btn-primary btn-block">Login</button>
+    </form>
+    <p class="text-center mt-3">Don't have an account? <a href="register.html">Register</a></p>
+  </div>
+
+  <script>
+    document.getElementById('loginForm').addEventListener('submit', function(event) {
+      event.preventDefault();
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+      
+      // Retrieve user data from local storage
+      const storedUsername = localStorage.getItem('username');
+      const storedPassword = localStorage.getItem('password');
+      
+      // Check if credentials match
+      if (username === storedUsername && password === storedPassword) {
+        alert('Login successful!');
+        window.location.href = 'index.html';
+      } else {
+        alert('Invalid username or password');
+      }
+    });
+  </script>
+</body>
+</html>
