@@ -127,23 +127,47 @@
     <p id="cag"><a href="./index.html">Login as Guest</a></p>
   </div>
 
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+
   <script>
+    // Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyBheoLlOSdjle4CCZpb1vLtg4R1OWyE5bQ",
+      authDomain: "watch-this-f0b71.firebaseapp.com",
+      projectId: "watch-this-f0b71",
+      storageBucket: "watch-this-f0b71.firebasestorage.app",
+      messagingSenderId: "1008946322583",
+      appId: "1:1008946322583:web:dee56d71e612d35001ddd2",
+      measurementId: "G-6TVXR7Y6QJ"
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+
+    // Login function
     document.getElementById('loginForm').addEventListener('submit', function(event) {
       event.preventDefault();
+
       const username = document.getElementById('username').value;
       const password = document.getElementById('password').value;
-      
-      // Retrieve user data from local storage
-      const storedUsername = localStorage.getItem('username');
-      const storedPassword = localStorage.getItem('password');
-      
-      // Check if credentials match
-      if (username === storedUsername && password === storedPassword) {
-        alert('Login successful!');
-        window.location.href = 'index.html';
-      } else {
-        alert('Invalid username or password');
-      }
+
+      // Generate the email by appending '@example.com' to the username (since you used username as email in registration)
+      const email = username + '@example.com';
+
+      // Authenticate with Firebase
+      auth.signInWithEmailAndPassword(email, password)
+        .then((userCredential) => {
+          // Login successful
+          alert('Login successful!');
+          window.location.href = 'index.html'; // Redirect to the home page
+        })
+        .catch((error) => {
+          // Handle errors
+          alert('Error: ' + error.message);
+        });
     });
   </script>
 </body>
