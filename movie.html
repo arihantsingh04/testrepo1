@@ -178,6 +178,80 @@
       background-color: #ffffff;
     }
 
+    @media screen and (max-width: 768px) {
+  .movie-detail {
+    padding: 20px;
+  }
+
+  .movie-header {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .movie-header img {
+    width: 250px;
+    margin-bottom: 20px;
+  }
+
+  .movie-info {
+    width: 100%;
+  }
+
+  .screenshots {
+    gap: 10px;
+    justify-content: space-between;
+  }
+
+  .screenshot {
+    width: 200px;
+  }
+
+  .search-box {
+    width: 300px;
+  }
+
+  .additional-info {
+    flex-direction: column;
+    gap: 10px;
+    align-items: center;
+  }
+
+  .additional-info a {
+    margin-right: 0;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .logo a {
+    font-size: 2rem;
+  }
+
+  .search-box {
+    width: 250px;
+  }
+
+  .movie-header img {
+    width: 200px;
+  }
+
+  .movie-info .title {
+    font-size: 2rem;
+  }
+
+  .movie-info .year,
+  .rating {
+    font-size: 1.2rem;
+  }
+
+  .overview {
+    font-size: 1rem;
+  }
+
+  .screenshot {
+    width: 150px;
+  }
+}
+
     .modal {
       position: fixed;
       top: 0;
@@ -230,14 +304,15 @@
   <header>
     <div class="logo"><a href="index.html">watch.this</a></div>
     <div class="search-container">
-      <input type="text" 
+      <input 
+        type="text" 
         class="search-box" 
         id="searchBox" 
-        placeholder="Search movies..." 
+        placeholder="Search movies" 
         oninput="fetchSuggestions(event)" 
         onkeypress="handleEnterKey(event)"
       />
-      <button class="search-icon" onclick="performSearch()">🔍</button>
+      
       <div class="suggestions" id="suggestions"></div>
     </div>
   </header>
@@ -339,8 +414,8 @@
 
     // Close modal
     function closeModal() {
-      document.getElementById("screenshotModal").style.display = "none";
-    }
+  document.getElementById("screenshotModal").style.display = "none";
+}
 
     // Perform search when pressing Enter or clicking the search icon
     function handleEnterKey(event) {
@@ -355,8 +430,7 @@
         window.location.href = `search.html?query=${encodeURIComponent(query)}`;
       }
     }
-
-    // Load movie details
+    
     fetchMovieDetails(movieId);
   </script>
 </body>

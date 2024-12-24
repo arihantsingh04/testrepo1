@@ -130,20 +130,53 @@
     <p class="text-center mt-3">Already have an account? <a href="login.html">Login</a></p>
   </div>
 
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+
   <script>
+    // Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyBheoLlOSdjle4CCZpb1vLtg4R1OWyE5bQ",
+      authDomain: "watch-this-f0b71.firebaseapp.com",
+      projectId: "watch-this-f0b71",
+      storageBucket: "watch-this-f0b71.firebasestorage.app",
+      messagingSenderId: "1008946322583",
+      appId: "1:1008946322583:web:dee56d71e612d35001ddd2",
+      measurementId: "G-6TVXR7Y6QJ"
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    // Register function
     document.getElementById('registerForm').addEventListener('submit', function(event) {
       event.preventDefault();
+      
       const name = document.getElementById('name').value;
       const username = document.getElementById('username').value;
       const password = document.getElementById('password').value;
-      
-      // Store user data in local storage
-      localStorage.setItem('name', name);
-      localStorage.setItem('username', username);
-      localStorage.setItem('password', password);
-      
-      alert('Registration successful!');
-      window.location.href = 'login.html';
+
+      // Register the user with Firebase Authentication
+      auth.createUserWithEmailAndPassword(username + '@example.com', password)  // Using username as email for simplicity
+        .then((userCredential) => {
+          const user = userCredential.user;
+          
+          // Store additional user info in Firestore
+          db.collection('users').doc(user.uid).set({
+            name: name,
+            username: username
+          });
+
+          alert('Registration successful!');
+          window.location.href = 'login.html'; // Redirect to login page
+        })
+        .catch((error) => {
+          alert('Error: ' + error.message);
+        });
     });
   </script>
 </body>
