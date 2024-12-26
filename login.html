@@ -30,7 +30,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      margin-bottom: 20px;
+      margin-bottom: 30px;
     }
 
     .logo {
@@ -103,6 +103,18 @@
       color: #ffffff;
       text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
     }
+
+    .error-message {
+      color: red;
+      font-size: 0.9rem;
+      margin-top: 10px;
+    }
+
+    .reset-password-link {
+      color: #007df3;
+      text-decoration: none;
+    }
+
   </style>
 </head>
 <body>
@@ -115,16 +127,19 @@
     <form id="loginForm">
       <div class="form-group">
         <input type="text" class="form-control" id="username" placeholder=" " required>
-        <label for="username" class="form-label">Username</label>
+        <label for="username" class="form-label">Email</label>
+        <div id="usernameError" class="error-message"></div>
       </div>
       <div class="form-group">
         <input type="password" class="form-control" id="password" placeholder=" " required>
         <label for="password" class="form-label">Password</label>
+        <div id="passwordError" class="error-message"></div>
       </div>
       <button type="submit" class="btn btn-primary btn-block">Login</button>
     </form>
     <p class="text-center mt-3">Don't have an account? <a href="register.html">Register</a></p>
-    <p id="cag"><a href="./index.html">Login as Guest</a></p>
+    <p id="cag" class="text-center mt-2"><a href="./index.html">Login as Guest</a> | 
+      <a href="#" class="reset-password-link" id="resetPasswordLink">Forgot Password?</a></p>
   </div>
 
   <!-- Firebase SDK -->
@@ -147,15 +162,31 @@
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
 
-    // Login function
+    // Login function with validation
     document.getElementById('loginForm').addEventListener('submit', function(event) {
       event.preventDefault();
 
       const username = document.getElementById('username').value;
       const password = document.getElementById('password').value;
 
-      // Generate the email by appending '@example.com' to the username (since you used username as email in registration)
-      const email = username + '@example.com';
+      // Reset errors
+      document.getElementById('usernameError').textContent = '';
+      document.getElementById('passwordError').textContent = '';
+
+      // Email validation (basic check for '@')
+      const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+      if (!emailPattern.test(username)) {
+        document.getElementById('usernameError').textContent = 'Please enter a valid email.';
+        return;
+      }
+
+      if (password.length < 6) {
+        document.getElementById('passwordError').textContent = 'Password should be at least 6 characters long.';
+        return;
+      }
+
+      // Generate email by appending '@example.com' to the username
+      const email = username.trim();
 
       // Authenticate with Firebase
       auth.signInWithEmailAndPassword(email, password)
@@ -166,8 +197,25 @@
         })
         .catch((error) => {
           // Handle errors
-          alert('Error: ' + error.message);
+          const errorMessage = error.message;
+          alert('Error: ' + errorMessage);
         });
+    });
+
+    // Reset Password Functionality
+    document.getElementById('resetPasswordLink').addEventListener('click', function(event) {
+      event.preventDefault();
+
+      const email = prompt('Enter your email to reset your password:');
+      if (email) {
+        auth.sendPasswordResetEmail(email)
+          .then(() => {
+            alert('Password reset email sent! Please check your inbox.');
+          })
+          .catch((error) => {
+            alert('Error: ' + error.message);
+          });
+      }
     });
   </script>
 </body>

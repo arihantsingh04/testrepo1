@@ -5,6 +5,21 @@ const mainContent = document.getElementById("mainContent");
 const searchBox = document.getElementById("searchBox");
 const suggestionsBox = document.getElementById("suggestions");
 
+// Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyBheoLlOSdjle4CCZpb1vLtg4R1OWyE5bQ",
+  authDomain: "watch-this-f0b71.firebaseapp.com",
+  projectId: "watch-this-f0b71",
+  storageBucket: "watch-this-f0b71.firebasestorage.app",
+  messagingSenderId: "1008946322583",
+  appId: "1:1008946322583:web:dee56d71e612d35001ddd2",
+  measurementId: "G-6TVXR7Y6QJ"
+};
+
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+
 // Fetch and display genres
 async function fetchGenres() {
   const response = await fetch(`${baseUrl}/genre/movie/list?api_key=${apiKey}`);
@@ -127,25 +142,42 @@ function performSearch(event) {
   }
 }
 
-// Display greeting with the user's name and Logout option
+// Function to update the greeting with the username (before '@' in email)
 function displayGreeting() {
-  const name = localStorage.getItem('name') || 'Guest';
-  const firstName = name.split(' ')[0];
-  const greetingElement = document.getElementById('greeting');
-  greetingElement.innerHTML = `
-    <div style="display: flex; flex-direction: column; align-items: flex-end;">
-      <div style="font-size: 1.2rem; font-weight: bold;">Hi, ${firstName}</div>
-      <button onclick="logout()" class="logout-btn">Logout</button>
-    </div>
-  `;
+  const user = auth.currentUser;
+
+  if (user) {
+    // Extract the part before '@' from the email as the username
+    const username = user.email.split('@')[0];
+    const greetingElement = document.getElementById('greeting');
+    greetingElement.innerHTML = `
+      <div style="display: flex; flex-direction: column; align-items: flex-end;">
+        <div style="font-size: 1.2rem; font-weight: bold;">Hi, ${username}</div>
+        <button onclick="logout()" class="logout-btn">Logout</button>
+      </div>
+    `;
+  } else {
+    // If no user is logged in, show a prompt to log in
+    const greetingElement = document.getElementById('greeting');
+    greetingElement.innerHTML = `
+      <a href="login.html" style="color: white; text-decoration: none; font-size: 1.2rem;">Log In</a>
+    `;
+  }
 }
+
+// Listen for changes in authentication state
+auth.onAuthStateChanged(function(user) {
+  displayGreeting(); // Update the greeting when the user state changes
+});
 
 // Logout function
 function logout() {
-  localStorage.clear();
-  window.location.href = 'login.html';
+  auth.signOut().then(function() {
+    window.location.href = 'login.html'; // Redirect to login page after logout
+  }).catch(function(error) {
+    alert('Error logging out: ' + error.message);
+  });
 }
 
 // Load genres and movies on page load
 loadGenresAndMovies();
-displayGreeting();
