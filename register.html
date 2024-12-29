@@ -30,7 +30,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      margin-bottom: 20px;
+      margin-bottom: 30px;
     }
 
     .logo {
@@ -118,8 +118,8 @@
         <label for="name" class="form-label">Name</label>
       </div>
       <div class="form-group">
-        <input type="text" class="form-control" id="username" placeholder=" " required>
-        <label for="username" class="form-label">Email</label>
+        <input type="email" class="form-control" id="email" placeholder=" " required>
+        <label for="email" class="form-label">Email</label>
       </div>
       <div class="form-group">
         <input type="password" class="form-control" id="password" placeholder=" " required>
@@ -157,18 +157,29 @@
       event.preventDefault();
       
       const name = document.getElementById('name').value;
-      const username = document.getElementById('username').value;
+      const email = document.getElementById('email').value;
       const password = document.getElementById('password').value;
 
+      // Validate the email
+      if (!email.includes('@') || !email.includes('.')) {
+        alert("Please enter a valid email address.");
+        return;
+      }
+
       // Register the user with Firebase Authentication
-      auth.createUserWithEmailAndPassword(username + '@example.com', password)  // Using username as email for simplicity
+      auth.createUserWithEmailAndPassword(email, password)
         .then((userCredential) => {
           const user = userCredential.user;
-          
+
+          // Update the user profile with name
+          user.updateProfile({
+            displayName: name
+          });
+
           // Store additional user info in Firestore
           db.collection('users').doc(user.uid).set({
             name: name,
-            username: username
+            email: email
           });
 
           alert('Registration successful!');

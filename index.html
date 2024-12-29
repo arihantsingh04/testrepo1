@@ -6,6 +6,9 @@
   <title>Search your Fav Movies</title>
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.7.2/font/bootstrap-icons.min.css">
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Style+Script&display=swap');
 
@@ -230,6 +233,9 @@
     }
 
     @media (max-width: 768px) {
+      header{
+        align-items: center;
+      }
       .logo a {
         font-size: 2rem;
       }
@@ -251,22 +257,25 @@
     @media (max-width: 480px) {
       header {
         flex-direction: column;
-        padding: 10px;
+        padding: 15px;
       }
 
       .logo {
-        margin-bottom: 10px;
+        margin-bottom: 0px;
       }
-
+      #searchBox{
+        max-width: 100%;
+      }
       .search-container {
+        flex-direction: row;
         max-width: 100%;
       }
 
-      #greeting {
-        flex-direction: column;
-        align-items: flex-start;
+      #greeting { 
+        flex-direction: row;
+        align-items: center;
         margin-top: 5px;
-        text-align: left;
+        text-align: center;
       }
 
       .category-title {
@@ -287,6 +296,7 @@
       }
     }
   </style>
+  </style>
 </head>
 <body>
   <header>
@@ -302,7 +312,9 @@
       />
       <div class="suggestions" id="suggestions"></div>
     </div>
-    <div id="greeting"></div>
+    <div id="greeting">
+      <div id="userInfo"></div>
+    </div>
   </header>
 
   <main id="mainContent">
