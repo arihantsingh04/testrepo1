@@ -6,7 +6,7 @@
   <title>Movie Details</title>
   <link rel="stylesheet" href="styles.css">
   <style>
-        @import url('https://fonts.googleapis.com/css2?family=Style+Script&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Style+Script&display=swap');
 
     * {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -40,11 +40,10 @@
     .logo a {
       text-decoration: none;
       margin-left: 20px;
-      color:rgb(0, 125, 243);
+      color: rgb(0, 125, 243);
       font-family: "Style Script";
       font-size: 3rem;
       font-weight: bold;
-  
     }
 
     .search-container {
@@ -76,7 +75,6 @@
       justify-content: flex-start;
       gap: 40px;
     }
-    /* <!-- CREATED BY ARIHANT SINGH,ANDLIV SHUKLA,ANIKESH SONI, ABDULLAH SIDDIQUI --> */
 
     .movie-header img {
       width: 350px;
@@ -120,7 +118,6 @@
     .overview {
       margin-top: 20px;
       font-size: 1.2rem;
-      margin-top: 20px;
       line-height: 1.6;
       text-align: justify;
     }
@@ -148,19 +145,16 @@
     .additional-info {
       display: flex;
       margin-top: 40px;
-      text-align: center;
+      gap: 20px;
+      align-items: center;
     }
 
-    .additional-info a {
+    .additional-info a,
+    .additional-info button {
       color: #ffffff;
       text-decoration: none;
       font-size: 1.2rem;
-      margin-right: 20px;
       transition: color 0.3s;
-    }
-
-    .additional-info a:hover {
-      color: #000000;
     }
 
     .additional-info .play-trailer {
@@ -176,85 +170,23 @@
 
     .additional-info .play-trailer:hover {
       background-color: #ffffff;
+      color: #000000;
     }
 
-    @media screen and (max-width: 768px) {
-    header{
-      flex-direction: column;
+    .additional-info .watch-now {
+      background-color: #ff0000;
+      padding: 10px 20px;
+      font-size: 1.5rem;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
     }
-  .movie-detail {
-    padding: 20px;
-  }
 
-  .movie-header {
-    margin-top: 40px;
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .movie-header img {
-    width: 250px;
-    margin-bottom: 10px;
-  }
-
-  .movie-info {
-    width: 100%;
-  }
-
-  .screenshots {
-    gap: 10px;
-    justify-content: space-between;
-  }
-
-  .screenshot {
-    width: 200px;
-  }
-
-  .search-box {
-    width: 300px;
-  }
-
-  .additional-info {
-    flex-direction: column;
-    gap: 10px;
-    align-items: center;
-  }
-
-  .additional-info a {
-    margin-right: 0;
-  }
-}
-
-@media screen and (max-width: 480px) {
-  .logo a {
-    font-size: 2rem;
-  }
-
-  .search-box {
-    width: 250px;
-  }
-
-  .movie-header img {
-    width: 200px;
-  }
-
-  .movie-info .title {
-    font-size: 2rem;
-  }
-
-  .movie-info .year,
-  .rating {
-    font-size: 1.2rem;
-  }
-
-  .overview {
-    font-size: 1rem;
-  }
-
-  .screenshot {
-    width: 150px;
-  }
-}
+    .additional-info .watch-now:hover {
+      background-color: #cc0000;
+    }
 
     .modal {
       position: fixed;
@@ -266,6 +198,7 @@
       display: none;
       justify-content: center;
       align-items: center;
+      z-index: 100;
     }
 
     .modal-content {
@@ -283,15 +216,17 @@
       border-radius: 20px;
     }
 
-    .search-icon{
-      display: none;
+    .modal-content iframe {
+      width: 800px;
+      height: 450px;
+      border-radius: 15px;
     }
-    
+
     .modal .close {
       position: absolute;
       top: 0px;
       right: 0px;
-      background:rgb(255, 255, 255);
+      background: rgb(255, 255, 255);
       padding-inline: 12px;
       padding-bottom: 7px;
       font-weight: bolder;
@@ -301,6 +236,90 @@
       text-align: center;
       font-size: 1.5rem;
       cursor: pointer;
+    }
+
+    @media screen and (max-width: 768px) {
+      header {
+        flex-direction: column;
+      }
+
+      .movie-detail {
+        padding: 20px;
+      }
+
+      .movie-header {
+        margin-top: 40px;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .movie-header img {
+        width: 250px;
+        margin-bottom: 10px;
+      }
+
+      .movie-info {
+        width: 100%;
+      }
+
+      .screenshots {
+        gap: 10px;
+        justify-content: space-between;
+      }
+
+      .screenshot {
+        width: 200px;
+      }
+
+      .search-box {
+        width: 300px;
+      }
+
+      .additional-info {
+        flex-direction: column;
+        gap: 10px;
+        align-items: center;
+      }
+
+      .modal-content iframe {
+        width: 90vw;
+        height: 50vw;
+      }
+    }
+
+    @media screen and (max-width: 480px) {
+      .logo a {
+        font-size: 2rem;
+      }
+
+      .search-box {
+        width: 250px;
+      }
+
+      .movie-detail {
+        margin-top: 20px;
+      }
+
+      .movie-header img {
+        width: 200px;
+      }
+
+      .movie-info .title {
+        font-size: 2rem;
+      }
+
+      .movie-info .year,
+      .rating {
+        font-size: 1.2rem;
+      }
+
+      .overview {
+        font-size: 1rem;
+      }
+
+      .screenshot {
+        width: 150px;
+      }
     }
   </style>
 </head>
@@ -316,7 +335,6 @@
         oninput="fetchSuggestions(event)" 
         onkeypress="handleEnterKey(event)"
       />
-      
       <div class="suggestions" id="suggestions"></div>
     </div>
   </header>
@@ -325,10 +343,19 @@
     <div id="movieDetail" class="movie-detail"></div>
   </main>
 
+  <!-- Screenshot Modal -->
   <div id="screenshotModal" class="modal">
     <div class="modal-content">
       <button class="close" onclick="closeModal()">x</button>
       <img id="expandedScreenshot" src="" alt="Screenshot">
+    </div>
+  </div>
+
+  <!-- Iframe Modal -->
+  <div id="iframeModal" class="modal">
+    <div class="modal-content">
+      <button class="close" onclick="closeIframeModal()">x</button>
+      <iframe id="watchIframe" src="" frameborder="0" allowfullscreen></iframe>
     </div>
   </div>
 
@@ -369,6 +396,7 @@
               <a href="${trailer ? trailer : '#'}" target="_blank" class="play-trailer" ${trailer ? '' : 'style="pointer-events: none;"'}>
                 Play Trailer
               </a>
+              <button class="watch-now" onclick="openIframeModal()">Watch Now</button>
             </div>
           </div>
         </div>
@@ -383,7 +411,7 @@
         const img = document.createElement("img");
         img.classList.add("screenshot");
         img.src = `${imageBaseUrl}${screenshot.file_path}`;
-        img.alt="Screenshot";
+        img.alt = "Screenshot";
         img.onclick = () => openModal(img.src);
         screenshotsContainer.appendChild(img);
       });
@@ -406,22 +434,41 @@
       return trailer ? `https://www.youtube.com/watch?v=${trailer.key}` : null;
     }
 
-    // Open modal for screenshots
+    // Open screenshot modal
     function openModal(src) {
       const modal = document.getElementById("screenshotModal");
       const expandedScreenshot = document.getElementById("expandedScreenshot");
       expandedScreenshot.src = src;
       modal.style.display = "flex";
-
-      
     }
 
-    // Close modal
+    // Close screenshot modal
     function closeModal() {
-  document.getElementById("screenshotModal").style.display = "none";
-}
+      document.getElementById("screenshotModal").style.display = "none";
+    }
 
-    // Perform search when pressing Enter or clicking the search icon
+    // Open iframe modal
+    function openIframeModal() {
+      const modal = document.getElementById("iframeModal");
+      const iframe = document.getElementById("watchIframe");
+
+      // Set the iframe source (replace with your streaming link)
+      iframe.src = `https://moviesapi.club/movie/${movieId}`; // Replace with actual streaming link
+
+      modal.style.display = "flex";
+    }
+
+    // Close iframe modal
+    function closeIframeModal() {
+      const modal = document.getElementById("iframeModal");
+      const iframe = document.getElementById("watchIframe");
+
+      // Stop the iframe video when closing the modal
+      iframe.src = "";
+      modal.style.display = "none";
+    }
+
+    // Perform search when pressing Enter
     function handleEnterKey(event) {
       if (event.key === "Enter") {
         performSearch();
@@ -434,7 +481,7 @@
         window.location.href = `search.html?query=${encodeURIComponent(query)}`;
       }
     }
-    
+
     fetchMovieDetails(movieId);
   </script>
 </body>
