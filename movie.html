@@ -3,323 +3,71 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Movie Details</title>
+  <title>Media Details</title>
   <link rel="stylesheet" href="styles.css">
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Style+Script&display=swap');
-
-    * {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: Arial, sans-serif;
-      background-image: url(./bg.jpg);
-      color: white;
-      padding: 0;
-      background-size: cover;
-      background-attachment: fixed;
-    }
-
-    header {
-      position: fixed;
-      top: 0;
-      width: 100%;
-      padding: 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: rgba(0, 0, 0, 0.7);
-      backdrop-filter: blur(10px);
-      z-index: 10;
-    }
-
-    .logo a {
-      text-decoration: none;
-      margin-left: 20px;
+    .media-type {
+      background: rgba(0, 125, 243, 0.2);
       color: rgb(0, 125, 243);
-      font-family: "Style Script";
-      font-size: 3rem;
-      font-weight: bold;
-    }
-
-    .search-container {
-      position: relative;
-    }
-
-    .search-box {
-      width: 400px;
-      padding: 10px 15px;
-      font-size: 1rem;
-      border-radius: 20px;
-      border: none;
-      outline: none;
-      color: white;
-      background: rgba(255, 255, 255, 0.1);
-      backdrop-filter: blur(10px);
-    }
-
-    .movie-detail {
-      margin-top: 100px;
-      padding: 40px;
-      display: flex;
-      gap: 40px;
-      flex-direction: column;
-    }
-
-    .movie-header {
-      display: flex;
-      justify-content: flex-start;
-      gap: 40px;
-    }
-
-    .movie-header img {
-      width: 350px;
-      height: auto;
-      object-fit: cover;
-      border-radius: 20px;
-      box-shadow: 0 0 15px rgba(0, 0, 0, 0.7);
-    }
-
-    .movie-info {
-      flex: 1;
-      background: rgba(255, 255, 255, 0.1);
-      backdrop-filter: blur(10px);
-      padding: 20px;
-      border-radius: 15px;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
-    }
-
-    .movie-info .title {
-      font-size: 2.5rem;
-      font-weight: bold;
-      margin-top: 20px;
-    }
-
-    .movie-info .year {
-      margin-top: 20px;
-      font-size: 1.5rem;
-      color: #ff0000;
-    }
-
-    .rating {
-      margin-top: 20px;
-      font-size: 1.5rem;
-    }
-
-    .rating span {
-      margin-top: 20px;
-      color: #ffcc00;
-    }
-
-    .overview {
-      margin-top: 20px;
-      font-size: 1.2rem;
-      line-height: 1.6;
-      text-align: justify;
-    }
-
-    .screenshots {
-      display: flex;
-      justify-content: center;
-      gap: 20px;
-      margin-top: 40px;
-      flex-wrap: wrap;
-    }
-
-    .screenshot {
-      width: 250px;
-      border-radius: 15px;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
-      cursor: pointer;
-      transition: transform 0.3s ease;
-    }
-
-    .screenshot:hover {
-      transform: scale(1.05);
-    }
-
-    .additional-info {
-      display: flex;
-      margin-top: 40px;
-      gap: 20px;
-      align-items: center;
-    }
-
-    .additional-info a,
-    .additional-info button {
-      color: #ffffff;
-      text-decoration: none;
-      font-size: 1.2rem;
-      transition: color 0.3s;
-    }
-
-    .additional-info .play-trailer {
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 0.9rem;
+      margin: 10px 0;
       display: inline-block;
-      background-color: #000000;
-      padding: 10px 20px;
-      font-size: 1.5rem;
-      color: white;
-      border-radius: 10px;
-      text-decoration: none;
-      transition: background-color 0.3s ease;
     }
-
-    .additional-info .play-trailer:hover {
-      background-color: #ffffff;
-      color: #000000;
+    .seasons-container {
+      margin-top: 15px;
     }
-
-    .additional-info .watch-now {
-      background-color: #ff0000;
-      padding: 10px 20px;
-      font-size: 1.5rem;
-      color: white;
-      border: none;
-      border-radius: 10px;
+    .season-select {
+      padding: 5px;
+      font-size: 1rem;
+      margin-bottom: 10px;
+    }
+    .episodes-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .episode-item {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 5px 10px;
+      border-radius: 5px;
       cursor: pointer;
-      transition: background-color 0.3s ease;
+      transition: background 0.3s ease;
     }
-
-    .additional-info .watch-now:hover {
-      background-color: #cc0000;
+    .episode-item:hover {
+      background: rgba(255, 255, 255, 0.2);
     }
-
-    .modal {
+    .iframe-container {
+      display: none;
       position: fixed;
-      top: 0;
-      left: 0;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 80%;
+      max-width: 1200px;
+      height: 80vh;
+      z-index: 1000;
+      background: #000;
+      border: 2px solid var(--primary-blue);
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+    }
+    .iframe-container iframe {
       width: 100%;
       height: 100%;
-      background: rgba(0, 0, 0, 0.7);
-      display: none;
-      justify-content: center;
-      align-items: center;
-      z-index: 100;
-    }
-
-    .modal-content {
-      position: relative;
-      background: rgba(255, 255, 255, 0.666);
-      padding: 5px;
-      border-radius: 25px;
-      max-width: 90%;
-      max-height: 90%;
-    }
-
-    .modal-content img {
-      width: 100%;
-      height: auto;
-      border-radius: 20px;
-    }
-
-    .modal-content iframe {
-      width: 800px;
-      height: 450px;
-      border-radius: 15px;
-    }
-
-    .modal .close {
-      position: absolute;
-      top: 0px;
-      right: 0px;
-      background: rgb(255, 255, 255);
-      padding-inline: 12px;
-      padding-bottom: 7px;
-      font-weight: bolder;
-      color: rgb(0, 157, 255);
       border: none;
-      border-radius: 100%;
-      text-align: center;
-      font-size: 1.5rem;
+    }
+    .iframe-container .close {
+      position: absolute;
+      top: -30px;
+      right: -30px;
+      background: var(--primary-blue);
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 50%;
       cursor: pointer;
-    }
-
-    @media screen and (max-width: 768px) {
-      header {
-        flex-direction: column;
-      }
-
-      .movie-detail {
-        padding: 20px;
-      }
-
-      .movie-header {
-        margin-top: 40px;
-        flex-direction: column;
-        align-items: center;
-      }
-
-      .movie-header img {
-        width: 250px;
-        margin-bottom: 10px;
-      }
-
-      .movie-info {
-        width: 100%;
-      }
-
-      .screenshots {
-        gap: 10px;
-        justify-content: space-between;
-      }
-
-      .screenshot {
-        width: 200px;
-      }
-
-      .search-box {
-        width: 300px;
-      }
-
-      .additional-info {
-        flex-direction: column;
-        gap: 10px;
-        align-items: center;
-      }
-
-      .modal-content iframe {
-        width: 90vw;
-        height: 50vw;
-      }
-    }
-
-    @media screen and (max-width: 480px) {
-      .logo a {
-        font-size: 2rem;
-      }
-
-      .search-box {
-        width: 250px;
-      }
-
-      .movie-detail {
-        margin-top: 20px;
-      }
-
-      .movie-header img {
-        width: 200px;
-      }
-
-      .movie-info .title {
-        font-size: 2rem;
-      }
-
-      .movie-info .year,
-      .rating {
-        font-size: 1.2rem;
-      }
-
-      .overview {
-        font-size: 1rem;
-      }
-
-      .screenshot {
-        width: 150px;
-      }
+      font-size: 1.2rem;
     }
   </style>
 </head>
@@ -343,7 +91,6 @@
     <div id="movieDetail" class="movie-detail"></div>
   </main>
 
-  <!-- Screenshot Modal -->
   <div id="screenshotModal" class="modal">
     <div class="modal-content">
       <button class="close" onclick="closeModal()">x</button>
@@ -351,12 +98,9 @@
     </div>
   </div>
 
-  <!-- Iframe Modal -->
-  <div id="iframeModal" class="modal">
-    <div class="modal-content">
-      <button class="close" onclick="closeIframeModal()">x</button>
-      <iframe id="watchIframe" src="" frameborder="0" allowfullscreen></iframe>
-    </div>
+  <div id="iframeContainer" class="iframe-container">
+    <button class="close" onclick="closeIframe()">x</button>
+    <iframe id="watchIframe" src="" frameborder="0" allowfullscreen></iframe>
   </div>
 
   <script>
@@ -365,44 +109,59 @@
     const imageBaseUrl = "https://image.tmdb.org/t/p/w500";
     const movieDetailContainer = document.getElementById("movieDetail");
 
-    // Extract movie ID from URL
     const urlParams = new URLSearchParams(window.location.search);
-    const movieId = urlParams.get("id");
+    const mediaId = urlParams.get("id");
+    const mediaType = urlParams.get("type") || 'movie';
 
-    // Fetch and display movie details
-    async function fetchMovieDetails(movieId) {
-      const response = await fetch(`${baseUrl}/movie/${movieId}?api_key=${apiKey}`);
-      const movie = await response.json();
+    async function fetchMediaDetails(mediaId, mediaType) {
+      const endpoint = mediaType === 'movie' ? 'movie' : 'tv';
+      const response = await fetch(`${baseUrl}/${endpoint}/${mediaId}?api_key=${apiKey}&append_to_response=seasons`);
+      if (!response.ok) throw new Error(`Failed to fetch details: ${response.status}`);
+      const data = await response.json();
 
-      const moviePoster = movie.poster_path ? `${imageBaseUrl}${movie.poster_path}` : 'https://via.placeholder.com/350x500';
-      const movieReleaseYear = new Date(movie.release_date).getFullYear();
-      const rating = movie.vote_average;
-      const overview = movie.overview;
-      const screenshots = await fetchMovieScreenshots(movieId);
-      const trailer = await fetchMovieTrailer(movieId);
+      const poster = data.poster_path ? `${imageBaseUrl}${data.poster_path}` : 'https://via.placeholder.com/350x500';
+      const title = data.title || data.name;
+      const year = new Date(data.release_date || data.first_air_date).getFullYear() || 'N/A';
+      const rating = data.vote_average;
+      const overview = data.overview;
+      const trailer = await fetchMediaTrailer(mediaId, mediaType);
 
-      const mediaType = movie.media_type || 'Movie';  // Default to 'Movie' if not available
+      let seasonsHtml = '';
+      if (mediaType === 'series' || mediaType === 'tv') {
+        const seasons = data.seasons.filter(season => season.season_number > 0);
+        seasonsHtml = `
+          <div class="seasons-container">
+            <div>Number of Seasons: ${seasons.length}</div>
+            <select class="season-select" onchange="displayEpisodes(${mediaId}, this.value)">
+              <option value="">Select a season</option>
+              ${seasons.map(season => `<option value="${season.season_number}">Season ${season.season_number}</option>`).join('')}
+            </select>
+            <div class="episodes-list" id="episodesList"></div>
+          </div>
+        `;
+      }
 
       movieDetailContainer.innerHTML = `
         <div class="movie-header">
-          <img src="${moviePoster}" alt="${movie.title}" />
+          <img src="${poster}" alt="${title}" />
           <div class="movie-info">
-            <div class="title">${movie.title}</div>
-            <div class="year">${movieReleaseYear}</div>
-            <div class="media-type">${mediaType === 'tv' ? 'TV Show' : 'Movie'}</div>
+            <div class="title">${title}</div>
+            <div class="year">${year}</div>
+            <div class="media-type">${mediaType === 'movie' ? 'Movie' : 'Series'}</div>
             <div class="rating">Rating: <span>${rating}</span>/10</div>
             <div class="overview">${overview || 'No overview available.'}</div>
+            ${seasonsHtml}
             <div class="additional-info">
-              <a href="${trailer ? trailer : '#'}" target="_blank" class="play-trailer" ${trailer ? '' : 'style="pointer-events: none;"'}>
+              <a href="${trailer || '#'}" target="_blank" class="play-trailer" ${trailer ? '' : 'style="pointer-events: none;"'}>
                 Play Trailer
               </a>
-              <button class="watch-now" onclick="openIframeModal()">Watch Now</button>
+              ${mediaType === 'movie' ? `<button class="watch-now" onclick="playMedia('${mediaId}', 'movie')">Watch Now</button>` : ''}
             </div>
           </div>
         </div>
       `;
 
-      // Display screenshots
+      const screenshots = await fetchMediaScreenshots(mediaId, mediaType);
       const screenshotImages = screenshots.slice(0, 10);
       const screenshotsContainer = document.createElement("div");
       screenshotsContainer.classList.add("screenshots");
@@ -419,22 +178,74 @@
       movieDetailContainer.appendChild(screenshotsContainer);
     }
 
-    // Fetch movie screenshots
-    async function fetchMovieScreenshots(movieId) {
-      const response = await fetch(`${baseUrl}/movie/${movieId}/images?api_key=${apiKey}`);
+    async function fetchMediaScreenshots(mediaId, mediaType) {
+      const endpoint = mediaType === 'movie' ? 'movie' : 'tv';
+      const response = await fetch(`${baseUrl}/${endpoint}/${mediaId}/images?api_key=${apiKey}`);
+      if (!response.ok) return [];
       const data = await response.json();
       return data.backdrops || [];
     }
 
-    // Fetch movie trailer
-    async function fetchMovieTrailer(movieId) {
-      const response = await fetch(`${baseUrl}/movie/${movieId}/videos?api_key=${apiKey}`);
+    async function fetchMediaTrailer(mediaId, mediaType) {
+      const endpoint = mediaType === 'movie' ? 'movie' : 'tv';
+      const response = await fetch(`${baseUrl}/${endpoint}/${mediaId}/videos?api_key=${apiKey}`);
+      if (!response.ok) return null;
       const data = await response.json();
       const trailer = data.results.find(video => video.type === 'Trailer');
       return trailer ? `https://www.youtube.com/watch?v=${trailer.key}` : null;
     }
 
-    // Open screenshot modal
+    async function displayEpisodes(mediaId, seasonNumber) {
+      if (!seasonNumber) {
+        document.getElementById("episodesList").innerHTML = "";
+        return;
+      }
+
+      const response = await fetch(`${baseUrl}/tv/${mediaId}/season/${seasonNumber}?api_key=${apiKey}`);
+      if (!response.ok) throw new Error(`Failed to fetch episodes: ${response.status}`);
+      const data = await response.json();
+      const episodesList = document.getElementById("episodesList");
+      episodesList.innerHTML = "";
+
+      data.episodes.forEach(episode => {
+        const episodeItem = document.createElement("div");
+        episodeItem.classList.add("episode-item");
+        episodeItem.textContent = `Episode ${episode.episode_number}`;
+        episodeItem.onclick = () => playMedia(mediaId, 'series', seasonNumber, episode.episode_number);
+        episodesList.appendChild(episodeItem);
+      });
+    }
+
+    function playMedia(mediaId, mediaType, season = null, episode = null) {
+      const iframeContainer = document.getElementById("iframeContainer");
+      const iframe = document.getElementById("watchIframe");
+      let url;
+
+      if (mediaType === 'movie') {
+        url = `https://moviesapi.club/movie/${mediaId}`;
+      } else if ((mediaType === 'series' || mediaType === 'tv') && season && episode) {
+        url = `https://moviesapi.club/tv/${mediaId}-${season}-${episode}`;
+      } else {
+        console.error("Invalid media type or missing season/episode for series:", mediaType);
+        return;
+      }
+
+      console.log("Playing media with URL:", url);
+      iframe.src = url;
+      iframeContainer.style.display = "block";
+    }
+
+    function closeIframe() {
+      const iframeContainer = document.getElementById("iframeContainer");
+      const iframe = document.getElementById("watchIframe");
+      iframe.src = ""; // Stop playback
+      iframeContainer.style.display = "none";
+    }
+
+    function closeModal() {
+      document.getElementById("screenshotModal").style.display = "none";
+    }
+
     function openModal(src) {
       const modal = document.getElementById("screenshotModal");
       const expandedScreenshot = document.getElementById("expandedScreenshot");
@@ -442,33 +253,6 @@
       modal.style.display = "flex";
     }
 
-    // Close screenshot modal
-    function closeModal() {
-      document.getElementById("screenshotModal").style.display = "none";
-    }
-
-    // Open iframe modal
-    function openIframeModal() {
-      const modal = document.getElementById("iframeModal");
-      const iframe = document.getElementById("watchIframe");
-
-      // Set the iframe source (replace with your streaming link)
-      iframe.src = `https://moviesapi.club/movie/${movieId}`; // Replace with actual streaming link
-
-      modal.style.display = "flex";
-    }
-
-    // Close iframe modal
-    function closeIframeModal() {
-      const modal = document.getElementById("iframeModal");
-      const iframe = document.getElementById("watchIframe");
-
-      // Stop the iframe video when closing the modal
-      iframe.src = "";
-      modal.style.display = "none";
-    }
-
-    // Perform search when pressing Enter
     function handleEnterKey(event) {
       if (event.key === "Enter") {
         performSearch();
@@ -482,7 +266,10 @@
       }
     }
 
-    fetchMovieDetails(movieId);
+    fetchMediaDetails(mediaId, mediaType).catch(err => {
+      console.error("Error loading media details:", err);
+      movieDetailContainer.innerHTML = "<p>Error loading content. Please try again.</p>";
+    });
   </script>
 </body>
 </html>

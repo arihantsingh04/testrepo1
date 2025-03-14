@@ -176,103 +176,152 @@
     <h2 id="searchTitle">showing results for <span id="searchQuery"></span></h2>
     <div class="search-results" id="searchResults"></div>
   </main>
-
-  <script>
-    const apiKey = "75a7e89329586e64789c4a51059f24ba";
-    const baseUrl = "https://api.themoviedb.org/3";
-    const imageBaseUrl = "https://image.tmdb.org/t/p/w500";
-    const searchBox = document.getElementById("searchBox");
-    const suggestionsBox = document.getElementById("suggestions");
-    const searchResultsContainer = document.getElementById("searchResults");
-    const searchTitle = document.getElementById("searchTitle");
-    const searchQuery = document.getElementById("searchQuery");
-
-    // Function to fetch search results
-    async function fetchSearchResults(query) {
-      const response = await fetch(`${baseUrl}/search/movie?api_key=${apiKey}&query=${encodeURIComponent(query)}`);
-      const data = await response.json();
-      return data.results; // Returns an array of search results
-    }
-
-    // Display search results
-    function displaySearchResults(results) {
-      searchResultsContainer.innerHTML = "";
-      if (results.length === 0) {
-        searchResultsContainer.innerHTML = "<p>No results found.</p>";
-        return;
+  <!DOCTYPE html>
+  <html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Results</title>
+    <style>
+      /* Existing styles unchanged, adding media-type */
+      .media-type {
+        background: rgba(0, 125, 243, 0.2);
+        color: rgb(0, 125, 243);
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 0.8rem;
+        margin-top: 5px;
+        display: inline-block;
       }
-
-      results.forEach(movie => {
-        const movieCard = document.createElement("div");
-        movieCard.classList.add("movie-card");
-        movieCard.innerHTML = `
-          <img src="${imageBaseUrl}${movie.poster_path}" alt="${movie.title}" />
-          <div class="details">
-            <div class="title">${movie.title}</div>
-            <div class="year">${new Date(movie.release_date).getFullYear()}</div>
-          </div>
-        `;
-        movieCard.onclick = () => {
-          window.location.href = `movie.html?id=${movie.id}`;
-        };
-
-        searchResultsContainer.appendChild(movieCard);
-      });
-    }
-
-    // Fetch and display suggestions for search box
-    async function fetchSuggestions(event) {
-      const query = event.target.value.trim();
-      if (query.length < 3) {
-        suggestionsBox.innerHTML = "";
-        return;
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="logo"><a href="index.html">watch.this</a></div>
+      <div class="search-container">
+        <input 
+          type="text" 
+          class="search-box" 
+          id="searchBox" 
+          placeholder="Search movies..." 
+          oninput="fetchSuggestions(event)" 
+          onkeypress="performSearch(event)"
+        />
+        <div class="suggestions" id="suggestions"></div>
+      </div>
+    </header>
+  
+    <main>
+      <h2 id="searchTitle">showing results for <span id="searchQuery"></span></h2>
+      <div class="search-results" id="searchResults"></div>
+    </main>
+  
+    <script>
+      const apiKey = "75a7e89329586e64789c4a51059f24ba";
+      const baseUrl = "https://api.themoviedb.org/3";
+      const imageBaseUrl = "https://image.tmdb.org/t/p/w500";
+      const searchBox = document.getElementById("searchBox");
+      const suggestionsBox = document.getElementById("suggestions");
+      const searchResultsContainer = document.getElementById("searchResults");
+      const searchTitle = document.getElementById("searchTitle");
+      const searchQuery = document.getElementById("searchQuery");
+  
+      async function fetchSearchResults(query) {
+        const movieResponse = await fetch(`${baseUrl}/search/movie?api_key=${apiKey}&query=${encodeURIComponent(query)}`);
+        const movieData = await movieResponse.json();
+  
+        const tvResponse = await fetch(`${baseUrl}/search/tv?api_key=${apiKey}&query=${encodeURIComponent(query)}`);
+        const tvData = await tvResponse.json();
+  
+        return [
+          ...movieData.results.map(movie => ({ ...movie, mediaType: 'movie' })),
+          ...tvData.results.map(tv => ({ ...tv, mediaType: 'tv' }))
+        ];
       }
-
-      const response = await fetch(`${baseUrl}/search/movie?api_key=${apiKey}&query=${encodeURIComponent(query)}`);
-      const data = await response.json();
-      suggestionsBox.innerHTML = data.results
-        .map(movie => `
-          <div class="suggestion-item" onclick="performSearchOnSuggestion('${movie.title}')">
-            ${movie.title} (${new Date(movie.release_date).getFullYear()})
-          </div>
-        `)
-        .join("");
-    }
-
-    // Perform search when Enter is pressed
-    function performSearch(event) {
-      if (event.key === "Enter") {
-        const query = searchBox.value.trim();
-        if (query.length >= 3) {
-          window.location.href = `search.html?query=${encodeURIComponent(query)}`;
+  
+      function displaySearchResults(results) {
+        searchResultsContainer.innerHTML = "";
+        if (results.length === 0) {
+          searchResultsContainer.innerHTML = "<p>No results found.</p>";
+          return;
+        }
+  
+        results.forEach(item => {
+          const movieCard = document.createElement("div");
+          movieCard.classList.add("movie-card");
+          movieCard.innerHTML = `
+            <img src="${imageBaseUrl}${item.poster_path || '/placeholder.jpg'}" alt="${item.title || item.name}" />
+            <div class="details">
+              <div class="title">${item.title || item.name}</div>
+              <div class="year">${new Date(item.release_date || item.first_air_date).getFullYear() || 'N/A'}</div>
+              <div class="media-type">${item.mediaType === 'movie' ? 'Movie' : 'TV Show'}</div>
+            </div>
+          `;
+          movieCard.onclick = () => {
+            window.location.href = `movie.html?id=${item.id}&type=${item.mediaType}`;
+          };
+          searchResultsContainer.appendChild(movieCard);
+        });
+      }
+  
+      async function fetchSuggestions(event) {
+        const query = event.target.value.trim();
+        if (query.length < 3) {
+          suggestionsBox.innerHTML = "";
+          return;
+        }
+  
+        const movieResponse = await fetch(`${baseUrl}/search/movie?api_key=${apiKey}&query=${encodeURIComponent(query)}`);
+        const movieData = await movieResponse.json();
+  
+        const tvResponse = await fetch(`${baseUrl}/search/tv?api_key=${apiKey}&query=${encodeURIComponent(query)}`);
+        const tvData = await tvResponse.json();
+  
+        const combinedResults = [
+          ...movieData.results.map(movie => ({ ...movie, mediaType: 'movie' })),
+          ...tvData.results.map(tv => ({ ...tv, mediaType: 'tv' }))
+        ];
+  
+        suggestionsBox.innerHTML = combinedResults
+          .map(item => `
+            <div class="suggestion-item" onclick="performSearchOnSuggestion('${item.title || item.name}')">
+              ${item.title || item.name} (${new Date(item.release_date || item.first_air_date).getFullYear() || 'N/A'}) - ${item.mediaType === 'movie' ? 'Movie' : 'TV Show'}
+            </div>
+          `)
+          .join("");
+      }
+  
+      function performSearch(event) {
+        if (event.key === "Enter") {
+          const query = searchBox.value.trim();
+          if (query.length >= 3) {
+            window.location.href = `search.html?query=${encodeURIComponent(query)}`;
+          }
         }
       }
-    }
-
-    // Perform search on suggestion click
-    function performSearchOnSuggestion(query) {
-      searchBox.value = query;
-      window.location.href = `search.html?query=${encodeURIComponent(query)}`;
-    }
-
-    // Get query from URL and display results
-    function getQueryFromUrl() {
-      const urlParams = new URLSearchParams(window.location.search);
-      return urlParams.get("query");
-    }
-
-    async function loadSearchResults() {
-      const query = getQueryFromUrl();
-      searchQuery.textContent = query;
-
-      if (query) {
-        const results = await fetchSearchResults(query);
-        displaySearchResults(results);
+  
+      function performSearchOnSuggestion(query) {
+        searchBox.value = query;
+        window.location.href = `search.html?query=${encodeURIComponent(query)}`;
       }
-    }
-
-    // Load search results when the page loads
-    loadSearchResults();
-  </script>
+  
+      function getQueryFromUrl() {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get("query");
+      }
+  
+      async function loadSearchResults() {
+        const query = getQueryFromUrl();
+        searchQuery.textContent = query;
+        if (query) {
+          const results = await fetchSearchResults(query);
+          displaySearchResults(results);
+        }
+      }
+  
+      loadSearchResults();
+    </script>
+  </body>
+  </html>
 </body>
 </html>
