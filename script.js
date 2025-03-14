@@ -307,6 +307,78 @@ function logout() {
   });
 }
 
+// Modified loadMedia function
+async function loadMedia(catalog, genreId) {
+  if (!catalog) return;
+
+  const movies = await fetchMoviesByGenre(genreId);
+  const series = await fetchSeriesByGenre(genreId);
+  const combinedItems = [
+      ...movies.map(item => ({ ...item, mediaType: 'movie' })),
+      ...series.map(item => ({ ...item, mediaType: 'series' }))
+  ].slice(0, 20);
+
+  if (combinedItems.length === 0) {
+      console.warn(`No media found for genre ${genreId} in ${currentLanguage}`);
+      catalog.innerHTML = "<p>No content available in this language.</p>";
+      return;
+  }
+
+  combinedItems.forEach(item => {
+      const card = document.createElement("div");
+      card.classList.add("movie-card");
+      card.innerHTML = `
+          <img 
+              src="${imageBaseUrl}${item.poster_path || '/placeholder.jpg'}" 
+              loading="lazy"
+              alt="${item.title || item.name}" 
+          />
+          <div class="details">
+              <div class="title">${item.title || item.name}</div>
+              <div class="year">${new Date(item.release_date || item.first_air_date).getFullYear() || 'N/A'}</div>
+              <div class="media-type">${item.mediaType === 'movie' ? 'Movie' : 'Series'}</div>
+          </div>
+      `;
+      card.onclick = () => {
+          window.location.href = `movie.html?id=${item.id}&type=${item.mediaType}`;
+      };
+      catalog.appendChild(card);
+  });
+}
+
+// Modified loadLatestSeries function
+async function loadLatestSeries(catalog) {
+  if (!catalog) return;
+
+  const series = await fetchLatestSeries();
+  if (series.length === 0) {
+      console.warn(`No latest series found in ${currentLanguage}`);
+      catalog.innerHTML = "<p>No latest series available in this language.</p>";
+      return;
+  }
+
+  series.slice(0, 20).forEach(item => {
+      const card = document.createElement("div");
+      card.classList.add("movie-card");
+      card.innerHTML = `
+          <img 
+              src="${imageBaseUrl}${item.poster_path || '/placeholder.jpg'}" 
+              loading="lazy"
+              alt="${item.name}" 
+          />
+          <div class="details">
+              <div class="title">${item.name}</div>
+              <div class="year">${new Date(item.first_air_date).getFullYear() || 'N/A'}</div>
+              <div class="media-type">Series</div>
+          </div>
+      `;
+      card.onclick = () => {
+          window.location.href = `movie.html?id=${item.id}&type=series`;
+      };
+      catalog.appendChild(card);
+  });
+}
+
 // Language switch functions
 function switchToEnglish() {
   currentLanguage = "en";
@@ -328,3 +400,4 @@ goBollywoodBtn.addEventListener("click", switchToHindi);
 
 // Initial load
 loadGenresAndMovies();
+
