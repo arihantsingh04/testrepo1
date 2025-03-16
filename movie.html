@@ -69,6 +69,139 @@
       cursor: pointer;
       font-size: 1.2rem;
     }
+    .watch-later {
+      padding: 12px 24px;
+      font-size: 1.2rem;
+      color: var(--text-primary);
+      background-color: #ff9900;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: transform 0.2s ease, background-color 0.2s ease;
+      font-weight: 500;
+      position: relative;
+    }
+    .watch-later:hover {
+      background-color: #e68a00;
+      transform: scale(1.05);
+    }
+    .watch-later:disabled {
+      background-color: #666;
+      cursor: not-allowed;
+      opacity: 0.7;
+    }
+    .watch-later.added {
+      background-color: #28a745;
+    }
+    .watch-later span {
+      display: inline-block;
+      transition: opacity 0.2s ease;
+    }
+    .watch-later.animate span {
+      opacity: 0;
+    }
+    .watch-later.animate::after {
+      content: "Added!";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      opacity: 1;
+      animation: fadeOut 1s forwards;
+    }
+    .watch-later.remove-animate span {
+      opacity: 0;
+    }
+    .watch-later.remove-animate::after {
+      content: "Removed!";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      opacity: 1;
+      animation: fadeOut 1s forwards;
+    }
+    .watched-btn {
+      background-color: #28a745;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 1.2rem;
+      font-weight: 500;
+      transition: transform 0.2s ease, background-color 0.2s ease;
+    }
+    .watched-btn:hover {
+      transform: scale(1.05);
+      background-color: #218838;
+    }
+    .watched-btn.watched {
+      background-color: #6c757d;
+      cursor: default;
+    }
+    .watched-btn.watched:hover {
+      transform: none;
+      background-color: #6c757d;
+    }
+    .watched-btn span {
+      display: inline-block;
+      transition: opacity 0.2s ease;
+    }
+    .watched-btn.animate span {
+      opacity: 0;
+    }
+    .watched-btn.animate::after {
+      content: "Watched!";
+      position: absolute;
+      opacity: 1;
+      animation: fadeOut 1s forwards;
+    }
+    .recommendations {
+      margin: 40px 0;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      justify-content: center;
+    }
+    .recommendations h3 {
+      text-align: center;
+      margin-bottom: 20px;
+      width: 100%;
+    }
+    .recommendation-card {
+      flex: 1 0 180px;
+      max-width: 180px;
+      background: #2a2a2a;
+      border-radius: 8px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+    .recommendation-card:hover {
+      transform: scale(1.03);
+    }
+    .recommendation-card img {
+      width: 100%;
+      height: 250px;
+      object-fit: cover;
+    }
+    .recommendation-card .details {
+      padding: 8px;
+    }
+    .recommendation-card .title {
+      font-size: 0.9rem;
+      color: white;
+    }
+    .recommendation-card .year {
+      font-size: 0.7rem;
+      color: #aaa;
+    }
+    @keyframes fadeOut {
+      0% { opacity: 1; }
+      80% { opacity: 1; }
+      100% { opacity: 0; }
+    }
   </style>
 </head>
 <body>
@@ -85,10 +218,12 @@
       />
       <div class="suggestions" id="suggestions"></div>
     </div>
+    <div id="greeting"></div>
   </header>
 
   <main>
     <div id="movieDetail" class="movie-detail"></div>
+    <div class="recommendations" id="recommendations"></div>
   </main>
 
   <div id="screenshotModal" class="modal">
@@ -103,15 +238,71 @@
     <iframe id="watchIframe" src="" frameborder="0" allowfullscreen></iframe>
   </div>
 
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+
   <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyBheoLlOSdjle4CCZpb1vLtg4R1OWyE5bQ",
+      authDomain: "watch-this-f0b71.firebaseapp.com",
+      projectId: "watch-this-f0b71",
+      storageBucket: "watch-this-f0b71.firebasestorage.app",
+      messagingSenderId: "1008946322583",
+      appId: "1:1008946322583:web:dee56d71e612d35001ddd2",
+      measurementId: "G-6TVXR7Y6QJ"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
     const apiKey = "75a7e89329586e64789c4a51059f24ba";
     const baseUrl = "https://api.themoviedb.org/3";
     const imageBaseUrl = "https://image.tmdb.org/t/p/w500";
     const movieDetailContainer = document.getElementById("movieDetail");
+    const recommendationsContainer = document.getElementById("recommendations");
 
     const urlParams = new URLSearchParams(window.location.search);
     const mediaId = urlParams.get("id");
     const mediaType = urlParams.get("type") || 'movie';
+
+    let currentUser = null;
+
+    function displayGreeting() {
+      const greetingElement = document.getElementById('greeting');
+      if (!greetingElement) return;
+
+      if (currentUser) {
+        const username = currentUser.email.split('@')[0];
+        greetingElement.innerHTML = `
+          <div style="display: flex; flex-direction: column; align-items: flex-end;">
+            <div style="font-size: 1.2rem; font-weight: bold;">Hi, ${username}</div>
+            <button onclick="logout()" class="logout-btn">Logout</button>
+            <a href="watchlater.html" style="color: white; text-decoration: none; font-size: 1rem; margin-top: 5px;">Watch Later</a>
+          </div>
+        `;
+      } else {
+        greetingElement.innerHTML = `
+          <a href="login.html" style="color: white; text-decoration: none; font-size: 1.2rem;">Log In</a>
+          <a href="watchlater.html" style="color: white; text-decoration: none; font-size: 1.2rem; margin-left: 20px;" title="Please log in first">Watch Later</a>
+        `;
+      }
+    }
+
+    auth.onAuthStateChanged(user => {
+      currentUser = user;
+      displayGreeting();
+      fetchMediaDetails(mediaId, mediaType);
+    });
+
+    function logout() {
+      auth.signOut().then(() => {
+        window.location.href = 'login.html';
+      }).catch(error => {
+        console.error('Error logging out:', error);
+      });
+    }
 
     async function fetchMediaDetails(mediaId, mediaType) {
       const endpoint = mediaType === 'movie' ? 'movie' : 'tv';
@@ -125,6 +316,16 @@
       const rating = data.vote_average;
       const overview = data.overview;
       const trailer = await fetchMediaTrailer(mediaId, mediaType);
+
+      let isAdded = false;
+      let isWatched = false;
+      if (currentUser) {
+        const doc = await db.collection('users').doc(currentUser.uid).collection('watchLater').doc(mediaId).get();
+        if (doc.exists) {
+          isAdded = true;
+          isWatched = doc.data().watched || false;
+        }
+      }
 
       let seasonsHtml = '';
       if (mediaType === 'series' || mediaType === 'tv') {
@@ -156,6 +357,10 @@
                 Play Trailer
               </a>
               ${mediaType === 'movie' ? `<button class="watch-now" onclick="playMedia('${mediaId}', 'movie')">Watch Now</button>` : ''}
+              <button class="watch-later ${isAdded ? 'added' : ''}" id="watchLaterBtn" onclick="toggleWatchLater('${mediaId}', '${mediaType}')" ${currentUser ? '' : 'disabled'} title="${currentUser ? (isAdded ? 'Remove from Watch Later' : 'Add to Watch Later') : 'Please log in first'}">
+                <span>${isAdded ? 'Added' : 'Watch Later'}</span>
+              </button>
+              ${currentUser ? `<button class="watched-btn ${isWatched ? 'watched' : ''}" id="watchedBtn" onclick="markWatched('${mediaId}')"><span>${isWatched ? 'Watched Already' : 'Mark Watched'}</span></button>` : ''}
             </div>
           </div>
         </div>
@@ -176,6 +381,7 @@
       });
 
       movieDetailContainer.appendChild(screenshotsContainer);
+      loadRecommendations(mediaId, mediaType);
     }
 
     async function fetchMediaScreenshots(mediaId, mediaType) {
@@ -230,7 +436,6 @@
         return;
       }
 
-      console.log("Playing media with URL:", url);
       iframe.src = url;
       iframeContainer.style.display = "block";
     }
@@ -238,7 +443,7 @@
     function closeIframe() {
       const iframeContainer = document.getElementById("iframeContainer");
       const iframe = document.getElementById("watchIframe");
-      iframe.src = ""; // Stop playback
+      iframe.src = "";
       iframeContainer.style.display = "none";
     }
 
@@ -264,6 +469,102 @@
       if (query) {
         window.location.href = `search.html?query=${encodeURIComponent(query)}`;
       }
+    }
+
+    async function toggleWatchLater(mediaId, mediaType) {
+      if (!currentUser) return;
+
+      const btn = document.getElementById("watchLaterBtn");
+      const isAdded = btn.classList.contains('added');
+
+      if (isAdded) {
+        btn.classList.add('remove-animate');
+        setTimeout(() => {
+          btn.classList.remove('remove-animate');
+          btn.classList.remove('added');
+          btn.querySelector('span').textContent = 'Watch Later';
+          btn.title = 'Add to Watch Later';
+        }, 1000);
+
+        try {
+          await db.collection('users').doc(currentUser.uid).collection('watchLater').doc(mediaId).delete();
+        } catch (error) {
+          console.error("Error removing from Watch Later:", error);
+        }
+      } else {
+        btn.classList.add('animate');
+        setTimeout(() => {
+          btn.classList.remove('animate');
+          btn.classList.add('added');
+          btn.querySelector('span').textContent = 'Added';
+          btn.title = 'Remove from Watch Later';
+        }, 1000);
+
+        try {
+          await db.collection('users').doc(currentUser.uid).collection('watchLater').doc(mediaId).set({
+            mediaId: mediaId,
+            mediaType: mediaType,
+            addedAt: firebase.firestore.FieldValue.serverTimestamp(),
+            watched: false
+          });
+        } catch (error) {
+          console.error("Error adding to Watch Later:", error);
+        }
+      }
+    }
+
+    async function markWatched(mediaId) {
+      if (!currentUser) return;
+
+      const btn = document.getElementById("watchedBtn");
+      if (btn.classList.contains('watched')) return;
+
+      btn.classList.add('animate');
+      setTimeout(() => {
+        btn.classList.remove('animate');
+        btn.classList.add('watched');
+        btn.querySelector('span').textContent = 'Watched Already';
+      }, 1000);
+
+      try {
+        const docRef = db.collection('users').doc(currentUser.uid).collection('watchLater').doc(mediaId);
+        const doc = await docRef.get();
+        if (doc.exists) {
+          await docRef.update({ watched: true });
+        } else {
+          await docRef.set({
+            mediaId: mediaId,
+            mediaType: mediaType,
+            addedAt: firebase.firestore.FieldValue.serverTimestamp(),
+            watched: true
+          });
+        }
+      } catch (error) {
+        console.error("Error marking as watched:", error);
+      }
+    }
+
+    async function loadRecommendations(mediaId, mediaType) {
+      const endpoint = mediaType === 'movie' ? 'movie' : 'tv';
+      const response = await fetch(`${baseUrl}/${endpoint}/${mediaId}/similar?api_key=${apiKey}`);
+      if (!response.ok) return;
+      const data = await response.json();
+
+      recommendationsContainer.innerHTML = '<h3>Recommended for You</h3>';
+      const recs = data.results.slice(0, 5);
+      recs.forEach(rec => {
+        const recCard = document.createElement('div');
+        recCard.classList.add('recommendation-card');
+        recCard.innerHTML = `
+          <img src="${imageBaseUrl}${rec.poster_path || '/placeholder.jpg'}" alt="${rec.title || rec.name}" />
+          <div class="details">
+            <div class="title">${rec.title || rec.name}</div>
+            <div class="year">${new Date(rec.release_date || rec.first_air_date).getFullYear() || 'N/A'}</div>
+          </div>
+        `;
+        recCard.onclick = () => window.location.href = `movie.html?id=${rec.id}&type=${mediaType}`;
+        recommendationsContainer.appendChild(recCard);
+      });
     }
 
     fetchMediaDetails(mediaId, mediaType).catch(err => {

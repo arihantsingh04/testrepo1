@@ -5,21 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Search Results</title>
   <style>
-        @import url('https://fonts.googleapis.com/css2?family=Style+Script&display=swap');
-
+    @import url('https://fonts.googleapis.com/css2?family=Style+Script&display=swap');
     * {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       margin: 0;
       padding: 0;
       box-sizing: border-box;
     }
-
     body {
       font-family: Arial, sans-serif;
       background-image: url(./bg.jpg);
       color: white;
     }
-
     header {
       position: fixed;
       top: 0;
@@ -32,20 +29,17 @@
       backdrop-filter: blur(10px);
       z-index: 10;
     }
-
-    .logo a{
-        text-decoration: none;
+    .logo a {
+      text-decoration: none;
       margin-left: 20px;
-      color:rgb(0, 125, 243);
+      color: rgb(0, 125, 243);
       font-family: "Style Script";
       font-size: 3rem;
       font-weight: bold;
     }
-
     .search-container {
       position: relative;
     }
-
     .search-box {
       width: 400px;
       padding: 10px 15px;
@@ -57,7 +51,6 @@
       background: rgba(255, 255, 255, 0.1);
       backdrop-filter: blur(10px);
     }
-
     .suggestions {
       position: absolute;
       top: 100%;
@@ -70,33 +63,28 @@
       z-index: 100;
       backdrop-filter: blur(10px);
     }
-
     .suggestion-item {
       padding: 10px;
       color: white;
       cursor: pointer;
       transition: background 0.3s;
     }
-
     .suggestion-item:hover {
       background: rgba(255, 0, 0, 0.8);
     }
-
     .search-results {
       display: flex;
       flex-wrap: wrap;
       margin-top: 20px;
       padding: 20px;
     }
-
-    #searchTitle{
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        font-weight: 400;
-        text-align: center;
-        margin-top: 130px;
-        color: rgb(0, 136, 255);
+    #searchTitle {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-weight: 400;
+      text-align: center;
+      margin-top: 130px;
+      color: rgb(0, 136, 255);
     }
-
     .movie-card {
       flex: 1 0 200px;
       margin: 20px;
@@ -106,58 +94,59 @@
       overflow: hidden;
       transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
-    .movie-card:hover{
-        transform: scale(1.05);
-        cursor: pointer;
+    .movie-card:hover {
+      transform: scale(1.05);
+      cursor: pointer;
     }
-
     .movie-card img {
       width: 100%;
       height: 300px;
       object-fit: cover;
     }
-
     .movie-card .details {
       padding: 10px;
     }
-
     .movie-card .title {
       font-size: 1rem;
       font-weight: bold;
     }
-
     .movie-card .year {
       color: #ff0000;
     }
+    .media-type {
+      background: rgba(0, 125, 243, 0.2);
+      color: rgb(0, 125, 243);
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 0.8rem;
+      margin-top: 5px;
+      display: inline-block;
+    }
     @media screen and (max-width: 768px) {
-      .logo{
+      .logo {
         scale: 80%;
       }
-    header{
-      flex-direction: column;
-    }
-    .search-box{
-      max-width: 90%;
-      margin-left: 20px;
-    }
-  
-    #searchTitle{
-      display: none;
+      header {
+        flex-direction: column;
       }
-    .search-container{
-      max-width: 100%;
+      .search-box {
+        max-width: 90%;
+        margin-left: 20px;
+      }
+      #searchTitle {
+        display: none;
+      }
+      .search-container {
+        max-width: 100%;
+      }
+      .search-results {
+        margin-top: 30%;
+      }
     }
-    .search-results{
-      margin-top: 30%;
-    }
-  }
-
   </style>
 </head>
 <body>
   <header>
-      <!-- CREATED BY ARIHANT SINGH,ANDLIV SHUKLA,ANIKESH SONI, ABDULLAH SIDDIQUI -->
-
     <div class="logo"><a href="index.html">watch.this</a></div>
     <div class="search-container">
       <input 
@@ -170,158 +159,171 @@
       />
       <div class="suggestions" id="suggestions"></div>
     </div>
+    <div id="greeting"></div>
   </header>
 
   <main>
     <h2 id="searchTitle">showing results for <span id="searchQuery"></span></h2>
     <div class="search-results" id="searchResults"></div>
   </main>
-  <!DOCTYPE html>
-  <html lang="en">
-  <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Search Results</title>
-    <style>
-      /* Existing styles unchanged, adding media-type */
-      .media-type {
-        background: rgba(0, 125, 243, 0.2);
-        color: rgb(0, 125, 243);
-        padding: 4px 8px;
-        border-radius: 4px;
-        font-size: 0.8rem;
-        margin-top: 5px;
-        display: inline-block;
+
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyBheoLlOSdjle4CCZpb1vLtg4R1OWyE5bQ",
+      authDomain: "watch-this-f0b71.firebaseapp.com",
+      projectId: "watch-this-f0b71",
+      storageBucket: "watch-this-f0b71.firebasestorage.app",
+      messagingSenderId: "1008946322583",
+      appId: "1:1008946322583:web:dee56d71e612d35001ddd2",
+      measurementId: "G-6TVXR7Y6QJ"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+
+    const apiKey = "75a7e89329586e64789c4a51059f24ba";
+    const baseUrl = "https://api.themoviedb.org/3";
+    const imageBaseUrl = "https://image.tmdb.org/t/p/w500";
+    const searchBox = document.getElementById("searchBox");
+    const suggestionsBox = document.getElementById("suggestions");
+    const searchResultsContainer = document.getElementById("searchResults");
+    const searchTitle = document.getElementById("searchTitle");
+    const searchQuery = document.getElementById("searchQuery");
+
+    let currentUser = null;
+
+    function displayGreeting() {
+      const greetingElement = document.getElementById('greeting');
+      if (!greetingElement) return;
+
+      if (currentUser) {
+        const username = currentUser.email.split('@')[0];
+        greetingElement.innerHTML = `
+          <div style="display: flex; flex-direction: column; align-items: flex-end;">
+            <div style="font-size: 1.2rem; font-weight: bold;">Hi, ${username}</div>
+            <button onclick="logout()" class="logout-btn">Logout</button>
+            <a href="watchlater.html" style="color: white; text-decoration: none; font-size: 1rem; margin-top: 5px;">Watch Later</a>
+          </div>
+        `;
+      } else {
+        greetingElement.innerHTML = `
+          <a href="login.html" style="color: white; text-decoration: none; font-size: 1.2rem;">Log In</a>
+          <a href="watchlater.html" style="color: white; text-decoration: none; font-size: 1.2rem; margin-left: 20px;">Watch Later</a>
+        `;
       }
-    </style>
-  </head>
-  <body>
-    <header>
-      <div class="logo"><a href="index.html">watch.this</a></div>
-      <div class="search-container">
-        <input 
-          type="text" 
-          class="search-box" 
-          id="searchBox" 
-          placeholder="Search movies..." 
-          oninput="fetchSuggestions(event)" 
-          onkeypress="performSearch(event)"
-        />
-        <div class="suggestions" id="suggestions"></div>
-      </div>
-    </header>
-  
-    <main>
-      <h2 id="searchTitle">showing results for <span id="searchQuery"></span></h2>
-      <div class="search-results" id="searchResults"></div>
-    </main>
-  
-    <script>
-      const apiKey = "75a7e89329586e64789c4a51059f24ba";
-      const baseUrl = "https://api.themoviedb.org/3";
-      const imageBaseUrl = "https://image.tmdb.org/t/p/w500";
-      const searchBox = document.getElementById("searchBox");
-      const suggestionsBox = document.getElementById("suggestions");
-      const searchResultsContainer = document.getElementById("searchResults");
-      const searchTitle = document.getElementById("searchTitle");
-      const searchQuery = document.getElementById("searchQuery");
-  
-      async function fetchSearchResults(query) {
-        const movieResponse = await fetch(`${baseUrl}/search/movie?api_key=${apiKey}&query=${encodeURIComponent(query)}`);
-        const movieData = await movieResponse.json();
-  
-        const tvResponse = await fetch(`${baseUrl}/search/tv?api_key=${apiKey}&query=${encodeURIComponent(query)}`);
-        const tvData = await tvResponse.json();
-  
-        return [
-          ...movieData.results.map(movie => ({ ...movie, mediaType: 'movie' })),
-          ...tvData.results.map(tv => ({ ...tv, mediaType: 'tv' }))
-        ];
+    }
+
+    auth.onAuthStateChanged(user => {
+      currentUser = user;
+      displayGreeting();
+    });
+
+    function logout() {
+      auth.signOut().then(() => {
+        window.location.href = 'login.html';
+      }).catch(error => {
+        alert('Error logging out: ' + error.message);
+      });
+    }
+
+    async function fetchSearchResults(query) {
+      const movieResponse = await fetch(`${baseUrl}/search/movie?api_key=${apiKey}&query=${encodeURIComponent(query)}`);
+      const movieData = await movieResponse.json();
+
+      const tvResponse = await fetch(`${baseUrl}/search/tv?api_key=${apiKey}&query=${encodeURIComponent(query)}`);
+      const tvData = await tvResponse.json();
+
+      return [
+        ...movieData.results.map(movie => ({ ...movie, mediaType: 'movie' })),
+        ...tvData.results.map(tv => ({ ...tv, mediaType: 'tv' }))
+      ];
+    }
+
+    function displaySearchResults(results) {
+      searchResultsContainer.innerHTML = "";
+      if (results.length === 0) {
+        searchResultsContainer.innerHTML = "<p>No results found.</p>";
+        return;
       }
-  
-      function displaySearchResults(results) {
-        searchResultsContainer.innerHTML = "";
-        if (results.length === 0) {
-          searchResultsContainer.innerHTML = "<p>No results found.</p>";
-          return;
-        }
-  
-        results.forEach(item => {
-          const movieCard = document.createElement("div");
-          movieCard.classList.add("movie-card");
-          movieCard.innerHTML = `
-            <img src="${imageBaseUrl}${item.poster_path || '/placeholder.jpg'}" alt="${item.title || item.name}" />
-            <div class="details">
-              <div class="title">${item.title || item.name}</div>
-              <div class="year">${new Date(item.release_date || item.first_air_date).getFullYear() || 'N/A'}</div>
-              <div class="media-type">${item.mediaType === 'movie' ? 'Movie' : 'TV Show'}</div>
-            </div>
-          `;
-          movieCard.onclick = () => {
-            window.location.href = `movie.html?id=${item.id}&type=${item.mediaType}`;
-          };
-          searchResultsContainer.appendChild(movieCard);
-        });
+
+      results.forEach(item => {
+        const movieCard = document.createElement("div");
+        movieCard.classList.add("movie-card");
+        movieCard.innerHTML = `
+          <img src="${imageBaseUrl}${item.poster_path || '/placeholder.jpg'}" alt="${item.title || item.name}" />
+          <div class="details">
+            <div class="title">${item.title || item.name}</div>
+            <div class="year">${new Date(item.release_date || item.first_air_date).getFullYear() || 'N/A'}</div>
+            <div class="media-type">${item.mediaType === 'movie' ? 'Movie' : 'TV Show'}</div>
+          </div>
+        `;
+        movieCard.onclick = () => {
+          window.location.href = `movie.html?id=${item.id}&type=${item.mediaType}`;
+        };
+        searchResultsContainer.appendChild(movieCard);
+      });
+    }
+
+    async function fetchSuggestions(event) {
+      const query = event.target.value.trim();
+      if (query.length < 3) {
+        suggestionsBox.innerHTML = "";
+        return;
       }
-  
-      async function fetchSuggestions(event) {
-        const query = event.target.value.trim();
-        if (query.length < 3) {
-          suggestionsBox.innerHTML = "";
-          return;
-        }
-  
-        const movieResponse = await fetch(`${baseUrl}/search/movie?api_key=${apiKey}&query=${encodeURIComponent(query)}`);
-        const movieData = await movieResponse.json();
-  
-        const tvResponse = await fetch(`${baseUrl}/search/tv?api_key=${apiKey}&query=${encodeURIComponent(query)}`);
-        const tvData = await tvResponse.json();
-  
-        const combinedResults = [
-          ...movieData.results.map(movie => ({ ...movie, mediaType: 'movie' })),
-          ...tvData.results.map(tv => ({ ...tv, mediaType: 'tv' }))
-        ];
-  
-        suggestionsBox.innerHTML = combinedResults
-          .map(item => `
-            <div class="suggestion-item" onclick="performSearchOnSuggestion('${item.title || item.name}')">
-              ${item.title || item.name} (${new Date(item.release_date || item.first_air_date).getFullYear() || 'N/A'}) - ${item.mediaType === 'movie' ? 'Movie' : 'TV Show'}
-            </div>
-          `)
-          .join("");
-      }
-  
-      function performSearch(event) {
-        if (event.key === "Enter") {
-          const query = searchBox.value.trim();
-          if (query.length >= 3) {
-            window.location.href = `search.html?query=${encodeURIComponent(query)}`;
-          }
-        }
-      }
-  
-      function performSearchOnSuggestion(query) {
-        searchBox.value = query;
-        window.location.href = `search.html?query=${encodeURIComponent(query)}`;
-      }
-  
-      function getQueryFromUrl() {
-        const urlParams = new URLSearchParams(window.location.search);
-        return urlParams.get("query");
-      }
-  
-      async function loadSearchResults() {
-        const query = getQueryFromUrl();
-        searchQuery.textContent = query;
-        if (query) {
-          const results = await fetchSearchResults(query);
-          displaySearchResults(results);
+
+      const movieResponse = await fetch(`${baseUrl}/search/movie?api_key=${apiKey}&query=${encodeURIComponent(query)}`);
+      const movieData = await movieResponse.json();
+
+      const tvResponse = await fetch(`${baseUrl}/search/tv?api_key=${apiKey}&query=${encodeURIComponent(query)}`);
+      const tvData = await tvResponse.json();
+
+      const combinedResults = [
+        ...movieData.results.map(movie => ({ ...movie, mediaType: 'movie' })),
+        ...tvData.results.map(tv => ({ ...tv, mediaType: 'tv' }))
+      ];
+
+      suggestionsBox.innerHTML = combinedResults
+        .map(item => `
+          <div class="suggestion-item" onclick="performSearchOnSuggestion('${item.title || item.name}')">
+            ${item.title || item.name} (${new Date(item.release_date || item.first_air_date).getFullYear() || 'N/A'}) - ${item.mediaType === 'movie' ? 'Movie' : 'TV Show'}
+          </div>
+        `)
+        .join("");
+    }
+
+    function performSearch(event) {
+      if (event.key === "Enter") {
+        const query = searchBox.value.trim();
+        if (query.length >= 3) {
+          window.location.href = `search.html?query=${encodeURIComponent(query)}`;
         }
       }
-  
-      loadSearchResults();
-    </script>
-  </body>
-  </html>
+    }
+
+    function performSearchOnSuggestion(query) {
+      searchBox.value = query;
+      window.location.href = `search.html?query=${encodeURIComponent(query)}`;
+    }
+
+    function getQueryFromUrl() {
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get("query");
+    }
+
+    async function loadSearchResults() {
+      const query = getQueryFromUrl();
+      searchQuery.textContent = query;
+      if (query) {
+        const results = await fetchSearchResults(query);
+        displaySearchResults(results);
+      }
+    }
+
+    loadSearchResults();
+  </script>
+  <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'92147ddf4a05c009',t:'MTc0MjEzMDYzNi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>
 </body>
 </html>
