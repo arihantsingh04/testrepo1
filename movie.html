@@ -360,7 +360,7 @@
               <button class="watch-later ${isAdded ? 'added' : ''}" id="watchLaterBtn" onclick="toggleWatchLater('${mediaId}', '${mediaType}')" ${currentUser ? '' : 'disabled'} title="${currentUser ? (isAdded ? 'Remove from Watch Later' : 'Add to Watch Later') : 'Please log in first'}">
                 <span>${isAdded ? 'Added' : 'Watch Later'}</span>
               </button>
-              ${currentUser ? `<button class="watched-btn ${isWatched ? 'watched' : ''}" id="watchedBtn" onclick="markWatched('${mediaId}')"><span>${isWatched ? 'Watched Already' : 'Mark Watched'}</span></button>` : ''}
+              ${currentUser ? `<button style="display:none;" class="watched-btn ${isWatched ? 'watched' : ''}" id="watchedBtn" onclick="markWatched('${mediaId}')"><span>${isWatched ? 'Watched Already' : 'Mark Watched'}</span></button>` : ''}
             </div>
           </div>
         </div>
