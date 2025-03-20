@@ -256,16 +256,67 @@
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+ <script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyBheoLlOSdjle4CCZpb1vLtg4R1OWyE5bQ",
+    authDomain: "watch-this-f0b71.firebaseapp.com",
+    projectId: "watch-this-f0b71",
+    storageBucket: "watch-this-f0b71.appspot.com",
+    messagingSenderId: "1008946322583",
+    appId: "1:1008946322583:web:dee56d71e612d35001ddd2",
+    measurementId: "G-6TVXR7Y6QJ"
+  };
 
-  <script>
-    const apiKey = "75a7e89329586e64789c4a51059f24ba";
-    const baseUrl = "https://api.themoviedb.org/3";
-    const imageBaseUrl = "https://image.tmdb.org/t/p/w500";
-    const movieDetailContainer = document.getElementById("movieDetail");
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.firestore();
 
-    const urlParams = new URLSearchParams(window.location.search);
-    const mediaId = urlParams.get("id");
-    const mediaType = urlParams.get("type") || 'movie';
+  const apiKey = "75a7e89329586e64789c4a51059f24ba";
+  const baseUrl = "https://api.themoviedb.org/3";
+  const imageBaseUrl = "https://image.tmdb.org/t/p/w500";
+  const movieDetailContainer = document.getElementById("movieDetail");
+  const recommendationsContainer = document.getElementById("recommendations");
+
+  const urlParams = new URLSearchParams(window.location.search);
+  const mediaId = urlParams.get("id");
+  const mediaType = urlParams.get("type") || 'movie';
+
+  let currentUser = null;
+
+  function displayGreeting() {
+    const greetingElement = document.getElementById('greeting');
+    if (!greetingElement) return;
+
+    if (currentUser) {
+      const username = currentUser.email.split('@')[0];
+      greetingElement.innerHTML = `
+        <div style="display: flex; flex-direction: column; align-items: flex-end;">
+          <div style="font-size: 1.2rem; font-weight: bold;">Hi, ${username}</div>
+          <button onclick="logout()" class="logout-btn">Logout</button>
+          <a href="watchlater.html" style="color: white; text-decoration: none; font-size: 1rem; margin-top: 5px;">Watch Later</a>
+        </div>
+      `;
+    } else {
+      greetingElement.innerHTML = `
+        <a href="login.html" style="color: white; text-decoration: none; font-size: 1.2rem;">Log In</a>
+        <a href="watchlater.html" style="color: white; text-decoration: none; font-size: 1.2rem; margin-left: 20px;" title="Please log in first">Watch Later</a>
+      `;
+    }
+  }
+
+  auth.onAuthStateChanged(user => {
+    currentUser = user;
+    displayGreeting();
+    fetchMediaDetails(mediaId, mediaType);
+  });
+
+  function logout() {
+    auth.signOut().then(() => {
+      window.location.href = 'login.html';
+    }).catch(error => {
+      console.error('Error logging out:', error);
+    });
+  }
 
   async function fetchMediaDetails(mediaId, mediaType) {
     const endpoint = mediaType === 'movie' ? 'movie' : 'tv';
@@ -273,12 +324,18 @@
     if (!response.ok) throw new Error(`Failed to fetch details: ${response.status}`);
     const data = await response.json();
 
-      const poster = data.poster_path ? `${imageBaseUrl}${data.poster_path}` : 'https://via.placeholder.com/350x500';
-      const title = data.title || data.name;
-      const year = new Date(data.release_date || data.first_air_date).getFullYear() || 'N/A';
-      const rating = data.vote_average;
-      const overview = data.overview;
-      const trailer = await fetchMediaTrailer(mediaId, mediaType);
+    const poster = data.poster_path ? `${imageBaseUrl}${data.poster_path}` : 'https://via.placeholder.com/350x500';
+    const title = data.title || data.name;
+    const year = new Date(data.release_date || data.first_air_date).getFullYear() || 'N/A';
+    const rating = data.vote_average;
+    const overview = data.overview;
+    const trailer = await fetchMediaTrailer(mediaId, mediaType);
+
+    let isAdded = false;
+    if (currentUser) {
+      const doc = await db.collection('users').doc(currentUser.uid).collection('watchLater').doc(mediaId).get();
+      if (doc.exists) isAdded = true;
+    }
 
     let seasonsHtml = '';
     if (mediaType === 'series' || mediaType === 'tv') {
@@ -295,42 +352,45 @@
       `;
     }
 
-      movieDetailContainer.innerHTML = `
-        <div class="movie-header">
-          <img src="${poster}" alt="${title}" />
-          <div class="movie-info">
-            <div class="title">${title}</div>
-            <div class="year">${year}</div>
-            <div class="media-type">${mediaType === 'movie' ? 'Movie' : 'Series'}</div>
-            <div class="rating">Rating: <span>${rating}</span>/10</div>
-            <div class="overview">${overview || 'No overview available.'}</div>
-            ${seasonsHtml}
-            <div class="additional-info">
-              <a href="${trailer || '#'}" target="_blank" class="play-trailer" ${trailer ? '' : 'style="pointer-events: none;"'}>
-                Play Trailer
-              </a>
-              ${mediaType === 'movie' ? `<button class="watch-now" onclick="playMedia('${mediaId}', 'movie')">Watch Now</button>` : ''}
-            </div>
+    movieDetailContainer.innerHTML = `
+      <div class="movie-header">
+        <img src="${poster}" alt="${title}" />
+        <div class="movie-info">
+          <div class="title">${title}</div>
+          <div class="year">${year}</div>
+          <div class="media-type">${mediaType === 'movie' ? 'Movie' : 'Series'}</div>
+          <div class="rating">Rating: <span>${rating}</span>/10</div>
+          <div class="overview">${overview || 'No overview available.'}</div>
+          ${seasonsHtml}
+          <div class="additional-info">
+            <a href="${trailer || '#'}" target="_blank" class="play-trailer" ${trailer ? '' : 'style="pointer-events: none;"'}>
+              Play Trailer
+            </a>
+            ${mediaType === 'movie' ? `<button class="watch-now" onclick="playMedia('${mediaId}', 'movie')">Watch Now</button>` : ''}
+            <button class="watch-later ${isAdded ? 'added' : ''}" id="watchLaterBtn" onclick="toggleWatchLater('${mediaId}', '${mediaType}')" ${currentUser ? '' : 'disabled'} title="${currentUser ? (isAdded ? 'Remove from Watch Later' : 'Add to Watch Later') : 'Please log in first'}">
+              <span>${isAdded ? 'Added' : 'Watch Later'}</span>
+            </button>
           </div>
         </div>
-      `;
+      </div>
+    `;
 
-      const screenshots = await fetchMediaScreenshots(mediaId, mediaType);
-      const screenshotImages = screenshots.slice(0, 10);
-      const screenshotsContainer = document.createElement("div");
-      screenshotsContainer.classList.add("screenshots");
+    const screenshots = await fetchMediaScreenshots(mediaId, mediaType);
+    const screenshotImages = screenshots.slice(0, 10);
+    const screenshotsContainer = document.createElement("div");
+    screenshotsContainer.classList.add("screenshots");
+    screenshotImages.forEach(screenshot => {
+      const img = document.createElement("img");
+      img.classList.add("screenshot");
+      img.src = `${imageBaseUrl}${screenshot.file_path}`;
+      img.alt = "Screenshot";
+      img.onclick = () => openModal(img.src);
+      screenshotsContainer.appendChild(img);
+    });
+    movieDetailContainer.appendChild(screenshotsContainer);
 
-      screenshotImages.forEach(screenshot => {
-        const img = document.createElement("img");
-        img.classList.add("screenshot");
-        img.src = `${imageBaseUrl}${screenshot.file_path}`;
-        img.alt = "Screenshot";
-        img.onclick = () => openModal(img.src);
-        screenshotsContainer.appendChild(img);
-      });
-
-      movieDetailContainer.appendChild(screenshotsContainer);
-    }
+    loadRecommendations(mediaId, mediaType);
+  }
 
   async function fetchMediaScreenshots(mediaId, mediaType) {
     const endpoint = mediaType === 'movie' ? 'movie' : 'tv';
@@ -384,17 +444,33 @@
       return;
     }
 
-      console.log("Playing media with URL:", url);
-      iframe.src = url;
-      iframeContainer.style.display = "block";
-    }
+    iframe.src = url;
+    iframeContainer.style.display = "block";
+  }
 
-    function closeIframe() {
-      const iframeContainer = document.getElementById("iframeContainer");
-      const iframe = document.getElementById("watchIframe");
-      iframe.src = ""; // Stop playback
-      iframeContainer.style.display = "none";
+  function closeIframe() {
+    const iframeContainer = document.getElementById("iframeContainer");
+    const iframe = document.getElementById("watchIframe");
+    const urlParams = new URLSearchParams(window.location.search);
+    const mediaId = urlParams.get("id");
+    const mediaType = urlParams.get("type") || 'movie';
+
+    // Save to localStorage when iframe closes
+    const iframeSrc = iframe.src;
+    let lastWatched = { mediaId, mediaType, poster: movieDetailContainer.querySelector('img').src, title: movieDetailContainer.querySelector('.title').textContent };
+    if (mediaType === 'series' || mediaType === 'tv') {
+      const match = iframeSrc.match(/tv\/(\d+)-(\d+)-(\d+)/);
+      if (match) {
+        const [, , season, episode] = match;
+        lastWatched.season = season;
+        lastWatched.episode = episode;
+      }
     }
+    localStorage.setItem('lastWatched', JSON.stringify(lastWatched));
+
+    iframe.src = "";
+    iframeContainer.style.display = "none";
+  }
 
   function closeModal() {
     document.getElementById("screenshotModal").style.display = "none";
@@ -447,13 +523,30 @@
         console.error("Error adding to Watch Later:", error);
       }
     }
+  }
 
-    function performSearch() {
-      const query = document.getElementById("searchBox").value.trim();
-      if (query) {
-        window.location.href = `search.html?query=${encodeURIComponent(query)}`;
-      }
-    }
+  async function loadRecommendations(mediaId, mediaType) {
+    const endpoint = mediaType === 'movie' ? 'movie' : 'tv';
+    const response = await fetch(`${baseUrl}/${endpoint}/${mediaId}/similar?api_key=${apiKey}`);
+    if (!response.ok) return;
+    const data = await response.json();
+
+    recommendationsContainer.innerHTML = '<h3>Recommended for You</h3>';
+    const recs = data.results.slice(0, 5);
+    recs.forEach(rec => {
+      const recCard = document.createElement('div');
+      recCard.classList.add('recommendation-card');
+      recCard.innerHTML = `
+        <img src="${imageBaseUrl}${rec.poster_path || '/placeholder.jpg'}" alt="${rec.title || rec.name}" />
+        <div class="details">
+          <div class="title">${rec.title || rec.name}</div>
+          <div class="year">${new Date(rec.release_date || rec.first_air_date).getFullYear() || 'N/A'}</div>
+        </div>
+      `;
+      recCard.onclick = () => window.location.href = `movie.html?id=${rec.id}&type=${mediaType}`;
+      recommendationsContainer.appendChild(recCard);
+    });
+  }
 
   fetchMediaDetails(mediaId, mediaType).catch(err => {
     console.error("Error loading media details:", err);
