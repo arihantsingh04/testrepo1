@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Watch Later</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .movie-card {
+      flex: 1 0 180px;
+      margin: 15px;
+    }
+    .movie-card img {
+      height: 250px;
+    }
+    .movie-card .details {
+      padding: 8px;
+    }
+    .movie-card .title {
+      font-size: 0.9rem;
+    }
+    .movie-card .year, .movie-card .media-type {
+      font-size: 0.7rem;
+    }
+    .watched-btn {
+      background-color: #28a745;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      margin-top: 5px;
+      transition: transform 0.2s ease, background-color 0.2s ease;
+    }
+    .watched-btn:hover {
+      transform: scale(1.05);
+      background-color: #218838;
+    }
+    .watched-btn.watched {
+      background-color: #6c757d;
+      cursor: default;
+    }
+    .watched-btn.watched:hover {
+      transform: none;
+      background-color: #6c757d;
+    }
+    .watched-btn span {
+      display: inline-block;
+      transition: opacity 0.2s ease;
+    }
+    .watched-btn.animate span {
+      opacity: 0;
+    }
+    .watched-btn.animate::after {
+      content: "Watched!";
+      position: absolute;
+      opacity: 1;
+      animation: fadeOut 1s forwards;
+    }
+    .remove-btn {
+      background-color: #dc3545;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      margin-top: 5px;
+      margin-left: 5px;
+      transition: transform 0.2s ease, background-color 0.2s ease;
+    }
+    .remove-btn:hover {
+      transform: scale(1.05);
+      background-color: #c82333;
+    }
+    .remove-btn span {
+      display: inline-block;
+      transition: opacity 0.2s ease;
+    }
+    .remove-btn.animate span {
+      opacity: 0;
+    }
+    .remove-btn.animate::after {
+      content: "Removed!";
+      position: absolute;
+      opacity: 1;
+      animation: fadeOut 1s forwards;
+    }
+    .filter-container {
+      text-align: center;
+      margin: 20px 0;
+    }
+    .filter-select {
+      padding: 5px 10px;
+      font-size: 1rem;
+      border-radius: 5px;
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+      border: none;
+    }
+    .filter-select option {
+      background: #333;
+      color: white;
+    }
+    @keyframes fadeOut {
+      0% { opacity: 1; }
+      80% { opacity: 1; }
+      100% { opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo"><a href="index.html">watch.this</a></div>
+    <div class="search-container">
+      <input 
+        type="text" 
+        class="search-box" 
+        id="searchBox" 
+        placeholder="Search movies..." 
+        oninput="fetchSuggestions(event)" 
+        onkeypress="performSearch(event)"
+      />
+      <div class="suggestions" id="suggestions"></div>
+    </div>
+    <div id="greeting"></div>
+  </header>
+
+  <main>
+    <h2 id="watchLaterTitle">Your Watch Later List</h2>
+    <div class="filter-container">
+      <select class="filter-select" id="filterSelect" onchange="applyFilter()">
+        <option value="all">All</option>
+        <option value="watched">Watched</option>
+        <option value="yet-to-watch">Yet to Watch</option>
+      </select>
+    </div>
+    <div class="search-results" id="watchLaterResults"></div>
+  </main>
+
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyBheoLlOSdjle4CCZpb1vLtg4R1OWyE5bQ",
+      authDomain: "watch-this-f0b71.firebaseapp.com",
+      projectId: "watch-this-f0b71",
+      storageBucket: "watch-this-f0b71.firebasestorage.app",
+      messagingSenderId: "1008946322583",
+      appId: "1:1008946322583:web:dee56d71e612d35001ddd2",
+      measurementId: "G-6TVXR7Y6QJ"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    const apiKey = "75a7e89329586e64789c4a51059f24ba";
+    const baseUrl = "https://api.themoviedb.org/3";
+    const imageBaseUrl = "https://image.tmdb.org/t/p/w500";
+    const watchLaterResults = document.getElementById("watchLaterResults");
+
+    let currentUser = null;
+    let watchLaterItems = []; // Store items for filtering
+
+    function displayGreeting() {
+      const greetingElement = document.getElementById('greeting');
+      if (!greetingElement) return;
+
+      if (currentUser) {
+        const username = currentUser.email.split('@')[0];
+        greetingElement.innerHTML = `
+          <div style="display: flex; flex-direction: column; align-items: flex-end;">
+            <div style="font-size: 1.2rem; font-weight: bold;">Hi, ${username}</div>
+            <button onclick="logout()" class="logout-btn">Logout</button>
+            <a href="watchlater.html" style="color: white; text-decoration: none; font-size: 1rem; margin-top: 5px;">Watch Later</a>
+          </div>
+        `;
+      } else {
+        greetingElement.innerHTML = `
+          <a href="login.html" style="color: white; text-decoration: none; font-size: 1.2rem;">Log In</a>
+          <a href="watchlater.html" style="color: white; text-decoration: none; font-size: 1.2rem; margin-left: 20px;" title="Please log in first">Watch Later</a>
+        `;
+      }
+    }
+
+    auth.onAuthStateChanged(user => {
+      currentUser = user;
+      displayGreeting();
+      loadWatchLaterList();
+    });
+
+    function logout() {
+      auth.signOut().then(() => {
+        window.location.href = 'login.html';
+      }).catch(error => {
+        console.error('Error logging out:', error);
+      });
+    }
+
+    async function loadWatchLaterList() {
+      if (!currentUser) {
+        watchLaterResults.innerHTML = "<p>Please log in to view your Watch Later list.</p>";
+        return;
+      }
+
+      try {
+        const snapshot = await db.collection('users').doc(currentUser.uid).collection('watchLater').get();
+        if (snapshot.empty) {
+          watchLaterResults.innerHTML = "<p>Your Watch Later list is empty.</p>";
+          return;
+        }
+
+        watchLaterItems = [];
+        for (const doc of snapshot.docs) {
+          const data = doc.data();
+          const mediaDetails = await fetchMediaDetails(data.mediaId, data.mediaType);
+          watchLaterItems.push({ ...data, mediaDetails });
+        }
+
+        watchLaterItems.sort((a, b) => (a.watched ? 1 : 0) - (b.watched ? 1 : 0));
+        applyFilter();
+      } catch (error) {
+        console.error("Error loading Watch Later list:", error);
+        watchLaterResults.innerHTML = "<p>Error loading your Watch Later list.</p>";
+      }
+    }
+
+    async function fetchMediaDetails(mediaId, mediaType) {
+      const endpoint = mediaType === 'movie' ? 'movie' : 'tv';
+      const response = await fetch(`${baseUrl}/${endpoint}/${mediaId}?api_key=${apiKey}`);
+      if (!response.ok) throw new Error(`Failed to fetch details: ${response.status}`);
+      return await response.json();
+    }
+
+    function displayMediaCard(media, mediaType, mediaId, isWatched = false) {
+      const card = document.createElement("div");
+      card.classList.add("movie-card");
+      card.innerHTML = `
+        <img src="${imageBaseUrl}${media.poster_path || '/placeholder.jpg'}" alt="${media.title || media.name}" />
+        <div class="details">
+          <div class="title">${media.title || media.name}</div>
+          <div class="year">${new Date(media.release_date || media.first_air_date).getFullYear() || 'N/A'}</div>
+          <div class="media-type">${mediaType === 'movie' ? 'Movie' : 'TV Show'}</div>
+          <button class="watched-btn ${isWatched ? 'watched' : ''}" data-id="${mediaId}">
+            <span>${isWatched ? 'Watched Already' : 'Mark Watched'}</span>
+          </button>
+          <button class="remove-btn" data-id="${mediaId}">
+            <span>Remove</span>
+          </button>
+        </div>
+      `;
+      card.querySelector('.watched-btn').onclick = (e) => {
+        e.stopPropagation();
+        toggleWatched(e, mediaId);
+      };
+      card.querySelector('.remove-btn').onclick = (e) => {
+        e.stopPropagation();
+        removeFromWatchLater(e, mediaId);
+      };
+      card.onclick = () => {
+        window.location.href = `movie.html?id=${media.id}&type=${mediaType}`;
+      };
+      watchLaterResults.appendChild(card);
+    }
+
+    async function toggleWatched(event, mediaId) {
+      const btn = event.target;
+      if (btn.classList.contains('watched')) return;
+
+      btn.classList.add('animate');
+      setTimeout(() => {
+        btn.classList.remove('animate');
+        btn.classList.add('watched');
+        btn.querySelector('span').textContent = 'Watched Already';
+      }, 1000);
+
+      try {
+        await db.collection('users').doc(currentUser.uid).collection('watchLater').doc(mediaId).update({
+          watched: true
+        });
+        loadWatchLaterList();
+      } catch (error) {
+        console.error("Error toggling watched status:", error);
+      }
+    }
+
+    async function removeFromWatchLater(event, mediaId) {
+      const btn = event.target;
+      btn.classList.add('animate');
+      setTimeout(() => {
+        btn.classList.remove('animate');
+      }, 1000);
+
+      try {
+        await db.collection('users').doc(currentUser.uid).collection('watchLater').doc(mediaId).delete();
+        loadWatchLaterList();
+      } catch (error) {
+        console.error("Error removing from Watch Later:", error);
+      }
+    }
+
+    function applyFilter() {
+      const filterValue = document.getElementById('filterSelect').value;
+      watchLaterResults.innerHTML = "";
+
+      let filteredItems = [];
+      if (filterValue === 'watched') {
+        filteredItems = watchLaterItems.filter(item => item.watched);
+      } else if (filterValue === 'yet-to-watch') {
+        filteredItems = watchLaterItems.filter(item => !item.watched);
+      } else {
+        filteredItems = [...watchLaterItems];
+      }
+
+      if (filteredItems.length === 0) {
+        watchLaterResults.innerHTML = `<p>No ${filterValue === 'watched' ? 'watched' : filterValue === 'yet-to-watch' ? 'yet-to-watch' : ''} items found.</p>`;
+        return;
+      }
+
+      filteredItems.forEach(item => displayMediaCard(item.mediaDetails, item.mediaType, item.mediaId, item.watched));
+    }
+
+    async function fetchSuggestions(event) {
+      const query = event.target.value.trim();
+      if (query.length < 3) {
+        document.getElementById("suggestions").innerHTML = "";
+        return;
+      }
+
+      const movieResponse = await fetch(`${baseUrl}/search/movie?api_key=${apiKey}&query=${encodeURIComponent(query)}`);
+      const movieData = await movieResponse.json();
+
+      const tvResponse = await fetch(`${baseUrl}/search/tv?api_key=${apiKey}&query=${encodeURIComponent(query)}`);
+      const tvData = await tvResponse.json();
+
+      const combinedResults = [
+        ...movieData.results.map(movie => ({ ...movie, mediaType: 'movie' })),
+        ...tvData.results.map(tv => ({ ...tv, mediaType: 'tv' }))
+      ];
+
+      document.getElementById("suggestions").innerHTML = combinedResults
+        .map(item => `
+          <div class="suggestion-item" onclick="performSearchOnSuggestion('${item.title || item.name}')">
+            ${item.title || item.name} (${new Date(item.release_date || item.first_air_date).getFullYear() || 'N/A'}) - ${item.mediaType === 'movie' ? 'Movie' : 'TV Show'}
+          </div>
+        `)
+        .join("");
+    }
+
+    function performSearch(event) {
+      if (event.key === "Enter") {
+        const query = document.getElementById("searchBox").value.trim();
+        if (query.length >= 3) {
+          window.location.href = `search.html?query=${encodeURIComponent(query)}`;
+        }
+      }
+    }
+
+    function performSearchOnSuggestion(query) {
+      document.getElementById("searchBox").value = query;
+      window.location.href = `search.html?query=${encodeURIComponent(query)}`;
+    }
+  </script>
+  <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'92147ddf4a05c009',t:'MTc0MjEzMDYzNi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>
+</body>
+</html>
