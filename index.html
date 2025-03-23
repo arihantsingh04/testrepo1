@@ -12,6 +12,42 @@
 <body>
   <header>
     <div class="logo"><a href="index.html">watch.this</a></div>
+    <div class="menu-container">
+      <nav class="main-nav">
+        <a href="index.html" class="nav-btn">Home</a>
+        <a href="#" id="goHollywoodBtn" class="nav-btn active">Hollywood</a>
+        <a href="#" id="goBollywoodBtn" class="nav-btn">Bollywood</a>
+        <a href="watchlater.html" class="nav-btn">Watch Later</a>
+      </nav>
+      <div class="user-nav">
+        <button class="search-toggle" aria-label="Toggle search">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+        </button>
+        <div class="search-container">
+          <input type="text" class="search-box" id="searchBox" placeholder="Search..." oninput="fetchSuggestions(event)" onkeypress="performSearch(event)" onblur="hideSearch()" />
+          <div class="suggestions" id="suggestions"></div>
+        </div>
+        <button class="user-badge" aria-label="User menu">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zm-6 6v-2a6 6 0 0 1 12 0v2"></path>
+          </svg>
+        </button>
+        <div class="user-menu" id="userMenu">
+          <div id="greeting" class="greeting"></div>
+          <button id="logout-btn" class="nav-btn">Logout</button> <!-- Styled as nav-btn -->
+        </div>
+      </div>
+    </div>
+    <button class="mobile-menu-toggle" aria-label="Toggle menu">
+      <span class="hamburger"></span>
+    </button>
+  </header>
+  <!-- <header>
+    <div class="logo"><a href="index.html">watch.this</a></div>
     <div class="search-container">
       <input type="text" class="search-box" id="searchBox" placeholder="Search movies..." oninput="fetchSuggestions(event)" onkeypress="performSearch(event)" />
       <div class="suggestions" id="suggestions"></div>
@@ -21,7 +57,7 @@
       <button id="goBollywoodBtn" class="language-btn">Go Bollywood</button>
     </div>
     <div id="greeting"></div>
-  </header>
+  </header> -->
   <main id="mainContent"></main>
   <script src="script.js"></script>
   <script>

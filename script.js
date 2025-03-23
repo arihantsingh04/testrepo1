@@ -282,7 +282,7 @@ function displayGreeting() {
   if (user) {
     const username = user.email.split('@')[0];
     greetingElement.innerHTML = `
-      <div style="display: flex; flex-direction: column; align-items: flex-end;">
+      <div style="display: flex; flex-direction: column; align-items: center;">
         <div style="font-size: 1.2rem; font-weight: bold;">Hi, ${username}</div>
         <button onclick="logout()" class="logout-btn">Logout</button>
       </div>
@@ -401,3 +401,87 @@ goBollywoodBtn.addEventListener("click", switchToHindi);
 // Initial load
 loadGenresAndMovies();
 
+// Mobile Menu Toggle
+const menuToggle = document.querySelector('.mobile-menu-toggle');
+const menuContainer = document.querySelector('.menu-container');
+menuToggle.addEventListener('click', () => {
+  menuToggle.classList.toggle('active');
+  menuContainer.classList.toggle('active');
+});
+
+// User Badge Menu Toggle (Desktop)
+const userBadge = document.querySelector('.user-badge');
+const userMenu = document.getElementById('userMenu');
+userBadge.addEventListener('click', (e) => {
+  e.stopPropagation();
+  userMenu.classList.toggle('active');
+});
+
+// Close User Menu on Outside Click
+document.addEventListener('click', (e) => {
+  if (!userMenu.contains(e.target) && !userBadge.contains(e.target)) {
+    userMenu.classList.remove('active');
+  }
+});
+
+// Search Toggle (Desktop)
+const searchToggle = document.querySelector('.search-toggle');
+const searchContainer = document.querySelector('.search-container');
+searchToggle.addEventListener('click', () => {
+  searchContainer.classList.toggle('active');
+  if (searchContainer.classList.contains('active')) {
+    document.getElementById('searchBox').focus();
+  }
+});
+
+// Hide Search on Blur
+function hideSearch() {
+  setTimeout(() => {
+    if (!document.activeElement.closest('.search-container')) {
+      searchContainer.classList.remove('active');
+    }
+  }, 100);
+}
+
+// Language Toggle (Hollywood/Bollywood)
+const hollywoodBtn = document.getElementById('goHollywoodBtn');
+const bollywoodBtn = document.getElementById('goBollywoodBtn');
+hollywoodBtn.addEventListener('click', (e) => {
+  e.preventDefault();
+  hollywoodBtn.classList.add('active');
+  bollywoodBtn.classList.remove('active');
+  // Add your language switch logic here if needed
+});
+bollywoodBtn.addEventListener('click', (e) => {
+  e.preventDefault();
+  bollywoodBtn.classList.add('active');
+  hollywoodBtn.classList.remove('active');
+  // Add your language switch logic here if needed
+});
+
+// Authentication Handling
+function displayGreeting(user) {
+  const greetingDiv = document.getElementById('greeting');
+  const logoutBtn = document.getElementById('logout-btn');
+  if (user) {
+    const username = user.email.split('@')[0];
+    greetingDiv.textContent = `Hi, ${username}`;
+    logoutBtn.style.display = 'block';
+  } else {
+    greetingDiv.innerHTML = '<a href="login.html">Log In</a>';
+    logoutBtn.style.display = 'none';
+  }
+}
+
+firebase.auth().onAuthStateChanged(user => {
+  currentUser = user;
+  displayGreeting(user);
+});
+
+document.getElementById('logout-btn').addEventListener('click', () => {
+  firebase.auth().signOut().then(() => {
+    window.location.href = 'login.html';
+  }).catch(error => {
+    alert('Error logging out: ' + error.message);
+  });
+});
